@@ -4,11 +4,12 @@ Professional web scraping toolkit with REST API and CLI. Built with TypeScript a
 
 ## 📦 Packages
 
-This monorepo contains three packages:
+This monorepo contains four packages:
 
 - **@operezol/scraper-shared** - Shared utilities and scraping logic
 - **@operezol/scraper-api** - REST API for web scraping
 - **@operezol/scraper-cli** - Command-line interface
+- **@operezol/scraper-web** - Web dashboard (React + TypeScript + Tailwind)
 
 ## 🚀 Quick Start
 
@@ -21,6 +22,19 @@ pnpm install
 # Build all packages
 pnpm build
 ```
+
+### Web Dashboard
+
+```bash
+# Start both API and Web Dashboard
+pnpm dev
+
+# Or start them separately:
+pnpm dev:api  # API at http://localhost:3000
+pnpm dev:web  # Dashboard at http://localhost:5173
+```
+
+Open http://localhost:5173 in your browser to use the dashboard.
 
 ### API Usage
 
