@@ -1,0 +1,32 @@
+{
+  "name": "@operezol/web-scraper-toolkit",
+  "version": "1.0.0",
+  "description": "Professional web scraping toolkit with API and CLI",
+  "private": true,
+  "scripts": {
+    "dev:api": "pnpm --filter @operezol/scraper-api dev",
+    "dev:cli": "pnpm --filter @operezol/scraper-cli dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean"
+  },
+  "keywords": [
+    "web-scraping",
+    "scraper",
+    "api",
+    "cli",
+    "monorepo"
+  ],
+  "author": "Oriol Pérez Olivares",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
