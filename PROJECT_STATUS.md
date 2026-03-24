@@ -17,6 +17,8 @@
 
 ### 1. **@operezol/scraper-shared** (Shared Package)
 - `WebScraper` class con lógica de scraping
+- Método `extractInternalLinks()` para extraer enlaces internos
+- Método `crawlInternalLinks()` para crawling recursivo con tracking de visitados
 - Tipos TypeScript compartidos
 - Utilidades (validación de URLs, formateo)
 - **Dependencias:** axios, cheerio
@@ -35,8 +37,12 @@
 - Comandos:
   - `scraper scrape <url>` - Scrape single URL
   - `scraper batch <file>` - Scrape from file
-- Opciones: selector, timeout, output file
+  - `scraper links <url>` - Extract internal links and export to CSV
+  - `scraper crawl <url>` - Crawl recursively and extract all internal links
+- Opciones: selector, timeout, output file, max-pages
 - Spinners y colores con ora + chalk
+- Exportación a CSV ordenado alfabéticamente
+- Progress tracking en tiempo real para crawling
 
 ### 4. **@operezol/scraper-web** (Web Dashboard) 🆕
 - React 18 + TypeScript + Vite + Tailwind
@@ -60,6 +66,8 @@
 - ✅ **Error handling** robusto
 - ✅ **Customizable** (headers, timeout, selectors)
 - ✅ **Batch scraping** (múltiples URLs)
+- ✅ **Link extraction** (enlaces internos a CSV)
+- ✅ **Recursive crawling** (visita todas las páginas con tracking)
 - ✅ **Real-time results** en dashboard
 
 ---
@@ -119,6 +127,8 @@ curl -X POST http://localhost:3000/scrape \
 pnpm --filter @operezol/scraper-cli start scrape https://example.com
 pnpm --filter @operezol/scraper-cli start scrape https://example.com -s "h1"
 pnpm --filter @operezol/scraper-cli start batch urls.txt -o results.json
+pnpm --filter @operezol/scraper-cli start links https://example.com -o links.csv
+pnpm --filter @operezol/scraper-cli start crawl https://example.com -o crawl-links.csv -m 100
 ```
 
 ---
@@ -192,8 +202,12 @@ Si se retoma el proyecto:
 - [ ] Rate limiting en API
 - [ ] Autenticación (opcional)
 - [ ] Más selectores CSS avanzados
-- [ ] Export de resultados (CSV, JSON)
+- [x] Export de resultados (CSV para enlaces)
+- [x] Extracción recursiva de enlaces (crawling profundo)
 - [ ] Historial persistente (localStorage)
+- [ ] Filtros avanzados para enlaces (por patrón, extensión)
+- [ ] Crawling paralelo para mayor velocidad
+- [ ] Respeto de robots.txt
 
 ---
 
@@ -211,5 +225,5 @@ Proyecto completado exitosamente. Demuestra capacidad de:
 
 ---
 
-**Última actualización:** 2 Enero 2025, 17:52  
+**Última actualización:** 24 Marzo 2026, 14:43  
 **Autor:** Oriol Pérez Olivares

@@ -73,6 +73,12 @@ pnpm --filter @operezol/scraper-cli start scrape https://example.com -s "h1"
 
 # Scrape multiple URLs from file
 pnpm --filter @operezol/scraper-cli start batch urls.txt -o results.json
+
+# Extract internal links from a website and export to CSV
+pnpm --filter @operezol/scraper-cli start links https://example.com -o links.csv
+
+# Recursively crawl a website and extract all internal links
+pnpm --filter @operezol/scraper-cli start crawl https://example.com -o crawl-links.csv -m 100
 ```
 
 ## 🏗️ Project Structure
@@ -143,6 +149,20 @@ const results = await scraper.scrapeMultiple(
   ['https://example.com', 'https://example.org'],
   'h1'
 )
+
+// Extract internal links from a website
+const links = await scraper.extractInternalLinks('https://example.com')
+// Returns: string[] - Array of internal links sorted alphabetically
+
+// Recursively crawl a website and extract all internal links
+const allLinks = await scraper.crawlInternalLinks(
+  'https://example.com',
+  100, // maxPages
+  (visited, total, currentUrl) => {
+    console.log(`Visited: ${visited}, Queue: ${total - visited}, Current: ${currentUrl}`)
+  }
+)
+// Returns: string[] - Array of all discovered internal links sorted alphabetically
 ```
 
 **Types:**
@@ -175,6 +195,8 @@ interface ScraperResult {
 - ✅ **Error Handling** - Robust error handling
 - ✅ **Customizable** - Headers, timeout, selectors
 - ✅ **Batch Scraping** - Multiple URLs at once
+- ✅ **Link Extraction** - Extract internal links and export to CSV
+- ✅ **Recursive Crawling** - Visit all pages and extract links with progress tracking
 
 ## 🔧 Tech Stack
 
