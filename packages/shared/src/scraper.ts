@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { extractInternalLinksFromHtml } from "./link-extract.js";
 import type { ScraperOptions, ScraperResult, ScraperError } from "./types.js";
 
 export class WebScraper {
@@ -62,41 +63,7 @@ export class WebScraper {
         timeout: 10000,
       });
 
-      const $ = cheerio.load(response.data);
-      const urlObj = new URL(url);
-      const baseUrl = `${urlObj.protocol}//${urlObj.hostname}`;
-      const links = new Set<string>();
-
-      $("a[href]").each((_, element) => {
-        const href = $(element).attr("href");
-        if (!href) return;
-
-        try {
-          let fullUrl: string;
-          if (href.startsWith("http://") || href.startsWith("https://")) {
-            fullUrl = href;
-          } else if (href.startsWith("//")) {
-            fullUrl = `${urlObj.protocol}${href}`;
-          } else if (href.startsWith("/")) {
-            fullUrl = `${baseUrl}${href}`;
-          } else if (
-            !href.startsWith("#") &&
-            !href.startsWith("mailto:") &&
-            !href.startsWith("tel:")
-          ) {
-            fullUrl = `${baseUrl}/${href}`;
-          } else {
-            return;
-          }
-
-          const linkUrl = new URL(fullUrl);
-          if (linkUrl.hostname === urlObj.hostname) {
-            links.add(fullUrl.split("#")[0]);
-          }
-        } catch {}
-      });
-
-      return Array.from(links).sort();
+      return extractInternalLinksFromHtml(response.data, url);
     } catch (error) {
       throw new Error(
         `Failed to extract links: ${error instanceof Error ? error.message : "Unknown error"}`,

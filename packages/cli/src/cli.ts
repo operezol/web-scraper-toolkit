@@ -2,7 +2,15 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
-import { WebScraper, isValidUrl, formatResult } from "@operezol/scraper-shared";
+import {
+  WebScraper,
+  isValidUrl,
+  formatResult,
+  crawlDualFxstreet,
+  mergePagesByPath,
+  mergedPathsToCsvRows,
+  formatMergedCsv,
+} from "@operezol/scraper-shared";
 
 const program = new Command();
 const scraper = new WebScraper();
@@ -183,6 +191,98 @@ program
       spinner.fail(chalk.red("✗ Crawl failed"));
       console.error(
         chalk.red(error instanceof Error ? error.message : "Unknown error"),
+      );
+      process.exit(1);
+    }
+  });
+
+program
+  .command("fxstreet-dual")
+  .description(
+    "Crawl www.fxstreet.com + qa.fxstreet.com, detect Next vs Sitefinity per page, merge paths to CSV",
+  )
+  .option(
+    "--www <url>",
+    "WWW start URL",
+    "https://www.fxstreet.com/",
+  )
+  .option(
+    "--qa <url>",
+    "QA start URL",
+    "https://qa.fxstreet.com/",
+  )
+  .option(
+    "-o, --output <file>",
+    "Output CSV (merged by normalized path)",
+    "fxstreet-www-qa-env.csv",
+  )
+  .option(
+    "-m, --max-pages <number>",
+    "Max pages to fetch across both hosts (safety cap)",
+    "50000",
+  )
+  .option(
+    "-d, --delay <ms>",
+    "Delay between requests in milliseconds",
+    "400",
+  )
+  .action(async (options) => {
+    const wwwUrl = options.www as string;
+    const qaUrl = options.qa as string;
+    if (!isValidUrl(wwwUrl) || !isValidUrl(qaUrl)) {
+      console.error(chalk.red("❌ Invalid --www or --qa URL"));
+      process.exit(1);
+    }
+
+    const maxPages = parseInt(options.maxPages as string, 10);
+    const delayMs = parseInt(options.delay as string, 10);
+
+    const spinner = ora("Crawling www + qa (internal links only)...").start();
+
+    try {
+      const pages = await crawlDualFxstreet({
+        wwwStartUrl: wwwUrl,
+        qaStartUrl: qaUrl,
+        maxPages,
+        delayMs,
+        onProgress: ({ visited, queueSize, currentUrl }) => {
+          spinner.text = chalk.cyan(
+            `Visited ${visited} | Queue ${queueSize} | ${currentUrl.slice(0, 72)}…`,
+          );
+        },
+      });
+
+      const merged = mergePagesByPath(pages);
+      const rows = mergedPathsToCsvRows(merged);
+      const csv = formatMergedCsv(rows);
+
+      const fs = await import("fs/promises");
+      await fs.writeFile(options.output as string, csv, "utf-8");
+
+      spinner.succeed(
+        chalk.green(
+          `✓ Done. ${pages.length} page visits, ${rows.length} unique paths → ${options.output}`,
+        ),
+      );
+
+      const conflicts = pages.filter((p) => p.environment === "conflict");
+      if (conflicts.length > 0) {
+        console.log(
+          chalk.yellow(
+            `\n⚠ ${conflicts.length} page(s) flagged both Next and Sitefinity (unexpected):`,
+          ),
+        );
+        conflicts.slice(0, 5).forEach((p) =>
+          console.log(chalk.yellow(`  - ${p.url}`)),
+        );
+        if (conflicts.length > 5) {
+          console.log(chalk.yellow(`  … and ${conflicts.length - 5} more`));
+        }
+      }
+    } catch (error) {
+      spinner.fail(chalk.red("✗ Crawl failed"));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
       );
       process.exit(1);
     }

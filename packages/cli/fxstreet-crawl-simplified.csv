@@ -1,0 +1,108 @@
+URL Pattern,Type,Migrated,Notes
+/,Static,Yes,Home page
+/account/login,Static,No,Login page with redirect params
+/analysis,Static,Yes,Analysis landing page
+/analysis/feed,Static,Yes,Analysis feed
+/analysis/latest,Static,Yes,Latest analysis
+/analysis/[slug],Dynamic,Yes,Individual analysis articles (covers all analysis URLs with date-slug pattern)
+/author/[slug],Dynamic,Yes,Author pages (covers all author URLs)
+/bonds,Static,No,Bonds page
+/brokers,Static,Yes,Brokers landing
+/brokers/all-spreads,Static,No,All spreads comparison
+/brokers/best,Static,Yes,Best brokers showcase
+/brokers/best/[slug],Dynamic,Yes,Specific broker lists (best-forex-broker best-cfd-brokers etc)
+/brokers/cashback,Static,No,Cashback page
+/brokers/press-releases,Static,No,Broker press releases
+/brokers/reviews,Static,Yes,Reviews landing
+/brokers/reviews/[slug],Dynamic,No,Individual broker reviews (fp-markets hfmarkets etc)
+/brokers/[slug],Dynamic,No,Individual broker pages (deriv fxpro tickmill etc)
+/company/[slug],Dynamic,Yes,Company pages
+/cryptocurrencies,Static,No,Crypto landing page
+/cryptocurrencies/bitcoin,Static,No,Bitcoin page
+/cryptocurrencies/cardano,Static,No,Cardano page
+/cryptocurrencies/dogecoin,Static,No,Dogecoin page
+/cryptocurrencies/ethereum,Static,No,Ethereum page
+/cryptocurrencies/industry-news,Static,Yes,Crypto industry news
+/cryptocurrencies/litecoin,Static,No,Litecoin page
+/cryptocurrencies/news,Static,Yes,Crypto news landing
+/cryptocurrencies/news/feed,Static,Yes,Crypto news feed
+/cryptocurrencies/news/[slug],Dynamic,Yes,Individual crypto news articles
+/cryptocurrencies/rates-charts,Static,No,Crypto rates and charts landing
+/cryptocurrencies/rates-charts/charts,Static,No,Crypto charts page
+/cryptocurrencies/rates-charts/indicators,Static,No,Crypto indicators
+/cryptocurrencies/rates-charts/rates,Static,No,Crypto rates page
+/cryptocurrencies/resources,Static,No,Crypto resources landing
+/cryptocurrencies/resources/[slug],Dynamic,No,Crypto educational resources (brokers-what-are-bitcoin-futures crypto-trading-5-technical-tools etc)
+/cryptocurrencies/ripple,Static,No,Ripple page
+/cryptocurrencies/solana,Static,No,Solana page
+/currencies/[slug],Dynamic,No,Currency pair pages (audusd eurusd gbpusd etc)
+/economic-calendar,Static,Yes,Economic calendar
+/economic-calendar/australia,Static,No,Australia calendar
+/economic-calendar/canada,Static,No,Canada calendar
+/economic-calendar/country/[id],Dynamic,No,Country calendar by ID
+/economic-calendar/event/[id],Dynamic,No,Calendar event details
+/economic-calendar/forex-market-hours,Static,No,Forex market hours
+/economic-calendar/united-kingdom,Static,No,UK calendar
+/economic-calendar/united-states,Static,No,US calendar
+/economic-calendar/world-interest-rates,Static,No,World interest rates
+/education,Static,Yes,Education landing
+/education/feed,Static,Yes,Education feed
+/education/latest,Static,Yes,Latest education
+/education/[slug],Dynamic,Yes,Individual education articles
+/events/[slug],Dynamic,No,Event pages (live-nfp-XXX off-the-charts-with-wayne-mcdonell etc)
+/info/about-us,Static,No,About us page
+/info/advertising-and-sponsorship,Static,No,Advertising page
+/info/contact-us,Static,No,Contact page
+/info/cookie-policy,Static,No,Cookie policy
+/info/corporate-identity,Static,No,Corporate identity
+/info/editorial-guidelines,Static,Yes,Editorial guidelines
+/info/ethical-code,Static,Yes,Ethical code
+/info/jobs,Static,No,Jobs page
+/info/jobs/[slug],Dynamic,No,Specific job postings
+/info/premium,Static,No,Premium page
+/info/premium-terms-and-conditions,Static,No,Premium T&C
+/info/prevention,Static,No,Prevention page
+/info/privacy-policy,Static,No,Privacy policy
+/info/terms-conditions,Static,No,Terms and conditions
+/live-video,Static,No,Live video landing
+/live-video/latest,Static,No,Latest videos
+/live-video/shows,Static,No,Video shows
+/live-video/[slug],Dynamic,No,Individual video pages
+/macroeconomics/central-banks/[slug],Dynamic,No,Central bank pages (boc boe boj ecb fed rba rbnz snb)
+/macroeconomics/economic-indicator/[slug],Dynamic,No,Economic indicators (cpi nfp)
+/macroeconomics/economic-indicator/nfp/trading,Static,No,NFP trading page
+/macroeconomics/events/[slug],Dynamic,No,Macro events (trade-war)
+/markets/commodities,Static,No,Commodities page
+/markets/commodities/energy/oil,Static,No,Oil page
+/markets/commodities/metals/gold,Static,No,Gold page
+/markets/equities,Static,No,Equities page
+/news,Static,Yes,News landing
+/news/archive,Static,Yes,News archive
+/news/feed,Static,Yes,News feed
+/news/latest/asset,Static,No,News by asset filter
+/news/[slug],Dynamic,Yes,Individual news articles (covers all news URLs with date-slug pattern)
+/press-releases,Static,Yes,Press releases
+/press-releases/[slug],Dynamic,No,Individual press releases
+/rates-charts,Static,No,Rates charts landing
+/rates-charts/chart,Static,Yes,Interactive chart
+/rates-charts/forecast,Static,No,Forecast page
+/rates-charts/indicators,Static,No,Indicators landing
+/rates-charts/indicators/technical-levels,Static,No,Technical levels
+/rates-charts/rates,Static,No,Rates page
+/rates-charts/rates/crosses/[slug],Dynamic,No,Currency crosses
+/rates-charts/rates/indices,Static,No,Indices rates
+/rates-charts/[slug],Dynamic,Yes,Individual asset charts (btcusd eurusd xauusd etc)
+/rss,Static,No,RSS feed
+/search,Static,Yes,Search page
+/sitemap-all.xml,Static,No,Sitemap
+/subscriptions,Static,No,Subscriptions page
+/technical-analysis,Static,No,Technical analysis landing
+/technical-analysis/cycle-analysis,Static,No,Cycle analysis
+/technical-analysis/elliott-wave,Static,No,Elliott wave
+/technical-analysis/sentiment,Static,No,Sentiment analysis
+/technical-analysis/sentiment/fed-sentiment-index,Static,No,Fed sentiment index
+/technical-analysis/sentiment/risk-appetite,Static,No,Risk appetite
+/technical-analysis/support-resistance,Static,No,Support resistance
+/technical-analysis/support-resistance/fibonacci,Static,No,Fibonacci levels
+/trade-now,Static,No,Trade now page
+/transparency-translations,Static,Yes,Transparency translations

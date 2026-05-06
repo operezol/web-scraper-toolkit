@@ -79,7 +79,31 @@ pnpm --filter @operezol/scraper-cli start links https://example.com -o links.csv
 
 # Recursively crawl a website and extract all internal links
 pnpm --filter @operezol/scraper-cli start crawl https://example.com -o crawl-links.csv -m 100
+
+# FXStreet: crawl www + QA together, detect Next.js vs Sitefinity per page, CSV by path
+pnpm --filter @operezol/scraper-cli start fxstreet-dual -o fxstreet-www-qa-env.csv
 ```
+
+The `fxstreet-dual` command walks internal links on **www.fxstreet.com** and **qa.fxstreet.com** in one queue (each URL visited once), classifies each HTML response, and writes a merged CSV grouped by **normalized path** so you can compare production vs QA stacks side by side.
+
+**Detection (mutually exclusive in normal pages):**
+
+- **next** — `<style data-precedence="next">` and/or any `<script src>` whose URL contains `_next`
+- **sitefinity** — `<meta name="Generator" content="...Sitefinity...">`
+- **conflict** — both signals present (unexpected)
+- **unknown** — no match or failed fetch
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--www <url>` | Start URL for production (default: `https://www.fxstreet.com/`) |
+| `--qa <url>` | Start URL for QA (default: `https://qa.fxstreet.com/`) |
+| `-o, --output <file>` | Output CSV path (default: `fxstreet-www-qa-env.csv`) |
+| `-m, --max-pages <n>` | Max pages fetched across both hosts (default: `50000`) |
+| `-d, --delay <ms>` | Delay between requests (default: `400`) |
+
+**CSV columns:** `normalized_path`, `www_environment`, `qa_environment`, `www_url`, `qa_url`. Empty cells mean that path was not reached on that host (or yet, if you stop early with `-m`). Output path is relative to the **current working directory** (when using `pnpm --filter … start`, that is usually `packages/cli`).
 
 ## 🏗️ Project Structure
 
@@ -89,6 +113,9 @@ web-scraper-toolkit/
 │   ├── shared/          # Shared utilities
 │   │   ├── src/
 │   │   │   ├── scraper.ts
+│   │   │   ├── env-detect.ts      # Next vs Sitefinity from HTML
+│   │   │   ├── link-extract.ts    # Internal links from HTML (used by WebScraper)
+│   │   │   ├── dual-origin-crawl.ts  # www + qa FXStreet crawl & CSV merge helpers
 │   │   │   ├── types.ts
 │   │   │   └── utils.ts
 │   │   └── package.json
@@ -96,9 +123,12 @@ web-scraper-toolkit/
 │   │   ├── src/
 │   │   │   └── index.ts
 │   │   └── package.json
-│   └── cli/             # CLI tool
+│   ├── cli/             # CLI tool
+│   │   ├── src/
+│   │   │   └── cli.ts
+│   │   └── package.json
+│   └── web/             # Web dashboard (React + Vite)
 │       ├── src/
-│       │   └── cli.ts
 │       └── package.json
 ├── package.json
 ├── pnpm-workspace.yaml
@@ -165,6 +195,29 @@ const allLinks = await scraper.crawlInternalLinks(
 // Returns: string[] - Array of all discovered internal links sorted alphabetically
 ```
 
+**FXStreet dual-host crawl (programmatic):**
+
+```typescript
+import {
+  detectPageEnvironment,
+  crawlDualFxstreet,
+  mergePagesByPath,
+  mergedPathsToCsvRows,
+  formatMergedCsv,
+} from '@operezol/scraper-shared'
+
+const pages = await crawlDualFxstreet({
+  wwwStartUrl: 'https://www.fxstreet.com/',
+  qaStartUrl: 'https://qa.fxstreet.com/',
+  maxPages: 50000,
+  delayMs: 400,
+})
+
+const merged = mergePagesByPath(pages)
+const rows = mergedPathsToCsvRows(merged)
+const csv = formatMergedCsv(rows)
+```
+
 **Types:**
 
 ```typescript
@@ -197,6 +250,7 @@ interface ScraperResult {
 - ✅ **Batch Scraping** - Multiple URLs at once
 - ✅ **Link Extraction** - Extract internal links and export to CSV
 - ✅ **Recursive Crawling** - Visit all pages and extract links with progress tracking
+- ✅ **FXStreet dual crawl** - Compare www vs QA internal URLs with Next.js vs Sitefinity detection (CLI + shared API)
 
 ## 🔧 Tech Stack
 
