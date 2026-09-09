@@ -1,73 +1,84 @@
 # Web Scraper Toolkit — Estado del proyecto
 
-**Actualizado:** 6 mayo 2026 · **Repo:** [github.com/operezol/web-scraper-toolkit](https://github.com/operezol/web-scraper-toolkit)
+**Actualizado:** 3 septiembre 2026 · **Repo:** [github.com/operezol/web-scraper-toolkit](https://github.com/operezol/web-scraper-toolkit)
 
 Monorepo (pnpm): TypeScript, React/Vite/Tailwind (web), Express (API), Commander (CLI).
 
----
+**Mapa de docs:** [docs/README.md](docs/README.md) — este fichero es la **única** lista de objetivos / *next coming*.
 
-## Qué incluye
-
-| Paquete | Rol |
-|---------|-----|
-| **scraper-shared** | `WebScraper`, extracción de enlaces (`link-extract`), crawl recursivo, detección Next/Sitefinity (`env-detect`), crawl dual FXStreet (`dual-origin-crawl` + CSV merge). Stack: axios, cheerio. |
-| **scraper-api** | Express :3000 — `GET /health`, `POST /scrape`, `POST /scrape/multiple`. |
-| **scraper-cli** | Comandos: `scrape`, `batch`, `links`, `crawl`, `fxstreet-dual` (www+QA FXStreet, CSV por path). ora/chalk. |
-| **scraper-web** | Dashboard React + Zustand; proxy a la API en dev. |
-
-**Comandos y ejemplos:** [README.md](README.md) (Quick Start, CLI Usage, API).
-
-**Árbol de carpetas:** [README.md — Project Structure](README.md#-project-structure).
+**Modelo:** la base (`shared` + CLI genérica) es generalista; los comandos FXStreet (y futuros) son scripts específicos encima. Capacidades compartidas por ≥2 scripts se **promueven** a la base — [docs/crawl-architecture-plan.md](docs/crawl-architecture-plan.md) §0. Al añadir/cambiar un script específico se actualizan docs y, si aplica, la base en el mismo ciclo (§0 *Ciclo*).
 
 ---
 
-## Crawl dual FXStreet (`fxstreet-dual`)
+## Inventario (existe hoy)
 
-Implementación actual **acoplada** a `www.fxstreet.com` / `qa.fxstreet.com` y reglas Next/Sitefinity en código.
+| Pieza | Qué hace |
+|-------|----------|
+| **scraper-shared** | `WebScraper` (scrape / batch), `link-extract`, `crawlInternalLinks`, `env-detect` (Next/Sitefinity hardcode), `dual-origin-crawl`, `fxstreet-es-crawl`. Axios + Cheerio. |
+| **scraper-api** | Express :3000 — `GET /health`, `POST /scrape`, `POST /scrape/multiple` |
+| **scraper-cli** | `scrape`, `batch`, `links`, `crawl`, `fxstreet-es`, `fxstreet-dual` |
+| **scraper-web** | Dashboard React + Zustand; proxy API en dev |
 
-**Evolución planeada:** crawl multi-origen y reglas HTML **solo por configuración** — especificación en **[docs/flexible-compare-crawl.md](docs/flexible-compare-crawl.md)** (contrato JSON, CLI tentativa `compare-crawl`). Implementar alineado a ese doc o actualizar el doc si cambia el contrato.
+Uso y ejemplos de comandos: [README.md](README.md).
+
+### FXStreet (código actual)
+
+| Comando | Comportamiento |
+|---------|----------------|
+| `fxstreet-dual` | Crawl www + qa `fxstreet.com`; detecta Next/Sitefinity; CSV merge por path |
+| `fxstreet-es` | Wrapper sobre `crawlSite` + preset FXStreet; CSV `normalized_path,environment,url` |
+
+**Análisis CSV ES (7264 URLs, 2026-09-03):** bajo `news` / `analysis`, conservar landings + `feed`/`latest`; el resto son slugs de artículo (~3000 news). ~3150 URLs con query (casi todas `/account/login?...`) → strip query. Preset: `FXSTREET_ARTICLE_RULES` + `FXSTREET_DETECTION`.
+
+**Preset ampliado (2026-09-09):** también excluye slugs de `education`, `company`, `author`, `press-releases`, `currencies`, `commodities`, `live-video`, `cryptocurrencies/*`, `rates-charts/[asset]`, `brokers` detail + `best|reviews|prop/[slug]`, calendar `event/*`, `curso-forex/*`, root dated posts. Crawl de planificación ≈ **67 URLs** (antes ~960 con solo news/analysis filtrados).
+
+**Antes de una run `fxstreet-es` “completa” con `--keep-articles`:** confirmar con el usuario (volumen alto). Para validar inventario de lanzamiento, usar el preset por defecto (sin `--keep-articles`).
 
 ---
 
-## Roadmap (resumen)
+## Next coming (única checklist)
 
-Detalle y casillas en subsecciones siguientes; evita duplicar lo ya cubierto en el código actual.
+Detalle de diseño: [docs/crawl-architecture-plan.md](docs/crawl-architecture-plan.md).  
+Contrato compare: [docs/flexible-compare-crawl.md](docs/flexible-compare-crawl.md).
 
-### Calidad · API · Web
+### Crawl — capa A (motor genérico)
 
-- [ ] Tests (Vitest en shared, contrato CSV/JSON, E2E dashboard opcional), CI (lint + test + build)
-- [ ] API: rate limiting, payloads acotados; auth opcional para deploy público
-- [ ] Dashboard: historial local/back ligero; deploy documentado
+- [x] `url-normalize` (strip query/hash; default filtros on; `--keep-query` / `--keep-hash`)
+- [x] `ArticlePathRule` + `isArticlePath` + flags CLI (`--keep-articles`, …)
+- [x] `maxPages` / `-m` **opt-in**: sin flag = sin límite
+- [x] `crawlSite` / `crawlInternalLinks` + tests unitarios
+- [x] `evaluateDetection` genérico + preset FXStreet (`next`/`sitefinity`)
+- [x] Checkpoint A1: flush parcial **opt-in** (`--checkpoint-every`)
+- [ ] Checkpoint A2: resume **opt-in** (`visited` + cola + `--resume`)
 
-### Scraping genérico (`scrape` / `links` / `crawl`)
+### Crawl — presets y compare
 
-- [ ] Filtros URL, profundidad máxima, checkpoints/resume, concurrencia acotada, robots.txt opcional
-- [x] CSV de enlaces y crawl recursivo con `max-pages`
+- [ ] Ejemplo JSON FXStreet (origins, article `news` + allowlist, detection `next`/`sitefinity`)
+- [ ] Ampliar allowlist `news` con paths no-post reales (`*/news/*`)
+- [ ] `compareCrawl(config)` + CLI `compare-crawl --config`
+- [x] Wrappers `fxstreet-es` sobre motor + preset (dual aún acoplado en parte)
+- [ ] Wrappers `fxstreet-dual` sobre motor + preset
+- [x] Allowlist FXStreet `news`/`analysis`: `feed`, `latest` (análisis CSV ES 2026-09)
+- [ ] Salidas opcionales: JSON Lines / SQLite
 
-### Crawl multi-origen / comparativo
+### Scraping genérico (resto)
 
-- [ ] Motor según [docs/flexible-compare-crawl.md](docs/flexible-compare-crawl.md)
-- [ ] Salidas extra (JSON Lines / SQLite) opcional
-- [x] FXStreet www vs QA (CSV por path; versión flexible pendiente de motor genérico)
+- [x] CSV enlaces + crawl recursivo con `max-pages`
+- [ ] Profundidad máxima, concurrencia, robots.txt opcional
 
-### Docs
+### Calidad · API · Web · docs
 
-- [x] Especificación flexible: [docs/flexible-compare-crawl.md](docs/flexible-compare-crawl.md)
-- [ ] `docs/recipes/`, notas de uso responsable frente a sitios remotos
+- [ ] Tests amplios + CI
+- [ ] API: rate limiting, payloads acotados; auth opcional
+- [ ] Dashboard: historial; deploy documentado
+- [ ] `docs/recipes/`, notas de uso responsable
 
 ---
 
 ## Historial breve
 
-Repos previos `web-scrapper-api` / `web-scrapper-cli` sustituidos por este monorepo + dashboard.
-
----
-
-## Notas
-
-**Métricas LOC/commits:** orientativas; el repo crece con shared/CLI.
-
-**Portfolio:** cubre monorepo TS, API, CLI, UI React y scraping compartido.
+Repos `web-scrapper-api` / `web-scrapper-cli` → monorepo + dashboard.  
+2026-09: `fxstreet-es`; planning capas crawl / frameworks por config; limpieza de docs; checkpoint A1/A2 en plan de base.
 
 ---
 

@@ -1,5 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { crawlSite } from "./generic-crawl.js";
+import type { CrawlOptions } from "./crawl-types.js";
 import { extractInternalLinksFromHtml } from "./link-extract.js";
 import type { ScraperOptions, ScraperResult, ScraperError } from "./types.js";
 
@@ -71,47 +73,45 @@ export class WebScraper {
     }
   }
 
+  /**
+   * Recursively crawl internal links.
+   * Overload: (url, maxPages?, onProgress?) — maxPages opt-in when number provided.
+   * Prefer CrawlOptions for filters / checkpoint.
+   */
   async crawlInternalLinks(
     startUrl: string,
-    maxPages: number = 100,
+    maxPagesOrOptions?: number | Omit<CrawlOptions, "startUrl">,
     onProgress?: (visited: number, total: number, currentUrl: string) => void,
   ): Promise<string[]> {
-    const visited = new Set<string>();
-    const toVisit = new Set<string>([startUrl]);
-    const allLinks = new Set<string>();
+    const opts: CrawlOptions =
+      typeof maxPagesOrOptions === "object" && maxPagesOrOptions !== null
+        ? { startUrl, ...maxPagesOrOptions }
+        : {
+            startUrl,
+            maxPages:
+              typeof maxPagesOrOptions === "number"
+                ? maxPagesOrOptions
+                : undefined,
+            delayMs: 500,
+            excludeArticles: false,
+            onProgress: onProgress
+              ? ({ visited, queueSize, currentUrl }) =>
+                  onProgress(visited, visited + queueSize, currentUrl)
+              : undefined,
+          };
 
-    while (toVisit.size > 0 && visited.size < maxPages) {
-      const currentUrl = Array.from(toVisit)[0];
-      toVisit.delete(currentUrl);
-
-      if (visited.has(currentUrl)) continue;
-
-      visited.add(currentUrl);
-      allLinks.add(currentUrl);
-
-      if (onProgress) {
-        onProgress(visited.size, visited.size + toVisit.size, currentUrl);
-      }
-
-      try {
-        const links = await this.extractInternalLinks(currentUrl);
-
-        for (const link of links) {
-          allLinks.add(link);
-          if (!visited.has(link) && visited.size < maxPages) {
-            toVisit.add(link);
-          }
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } catch (error) {
-        console.error(
-          `Error crawling ${currentUrl}:`,
-          error instanceof Error ? error.message : "Unknown error",
-        );
-      }
+    // Legacy positional callback when options object used without onProgress mapping
+    if (
+      typeof maxPagesOrOptions === "object" &&
+      maxPagesOrOptions !== null &&
+      onProgress &&
+      !maxPagesOrOptions.onProgress
+    ) {
+      opts.onProgress = ({ visited, queueSize, currentUrl }) =>
+        onProgress(visited, visited + queueSize, currentUrl);
     }
 
-    return Array.from(allLinks).sort();
+    const pages = await crawlSite(opts);
+    return pages.map((p) => p.url).sort();
   }
 }

@@ -1,46 +1,39 @@
-# Crawl comparativo configurable (especificación previa a implementación)
+# Crawl comparativo configurable (especificación)
 
-Este documento define **qué** debe hacer la herramienta y **cómo** se expresa por configuración, **sin** acoplar URLs, hosts ni selectores HTML a código fuente. La implementación en `packages/shared` y la CLI vendrá **después** de validar este diseño.
+Contrato de **configuración y salidas** para un crawl multi-origen con clasificación HTML declarativa.  
+Implementación pendiente; alinear código a este doc (o actualizar el doc si cambia el contrato).
+
+**Capas / filtros / article rules:** [crawl-architecture-plan.md](crawl-architecture-plan.md)  
+**Roadmap:** [PROJECT_STATUS.md](../PROJECT_STATUS.md)  
+**Índice:** [README.md](README.md)
 
 ---
 
 ## 1. Objetivo
 
-Permitir **rastrear uno o más orígenes** (mismo sitio en distintos hostnames o entornos), **solo enlaces internos** por origen, y **clasificar cada página** según **reglas declarativas** sobre el HTML (presencia de selectores, metas, patrones en atributos, etc.). Opcionalmente, **fusionar resultados por una clave normalizada de URL** (p. ej. pathname) para comparar “la misma ruta” entre orígenes.
+Rastrear uno o más orígenes (enlaces internos por host), clasificar cada página con reglas HTML declarativas, y opcionalmente fusionar por clave de path para comparar la misma ruta entre orígenes.
 
-Casos de uso:
-
-- Comparar producción vs QA (como FXStreet hoy).
-- Comparar dos marcas / idiomas que comparten estructura de paths.
-- Un solo origen con clasificación por reglas (sin comparación cruzada).
+Casos: prod vs QA; marcas/idiomas con paths compartidos; un solo origen con labels.
 
 ---
 
-## 2. Principios
+## 2. Conceptos
 
-| Principio | Descripción |
-|-----------|-------------|
-| **Sin hardcode en código** | Orígenes, User-Agent, límites, reglas de detección y normalización viven en **config** (JSON recomendado para MVP; YAML opcional después). |
-| **Reglas de detección declarativas** | Los “entornos” o etiquetas (p. ej. `next`, `sitefinity`) se definen como **conjuntos de condiciones** evaluables con Cheerio, no como `if` fijos en TypeScript. |
-| **Orígenes arbitrarios** | Lista de `{ id, startUrl }`. El `id` es estable y sirve para columnas CSV y logs (p. ej. `prod`, `qa`, no solo `www`/`qa`). |
-| **Un motor, varios modos** | El mismo núcleo puede: crawl de un solo origen con clasificación; crawl multi-origen con cola unificada; merge por clave configurable. |
-| **Comportamiento ante conflictos explícito** | Si varias reglas “marcan” la misma página, la política debe ser configurable (`first-match`, `multi-label`, `conflict-token`). |
+| Término | Significado |
+|---------|-------------|
+| **origin** | `{ id, startUrl }`; solo enlaces del mismo hostname |
+| **label** | Resultado de detección (p. ej. en perfil FXStreet: `next`, `sitefinity`) |
+| **rule** | Condición booleana sobre el HTML (§5) |
+| **definition** | `{ label, rules[], combine? }` |
+| **mergeKey** | URL → string para filas comparativas (default: pathname sin trailing slash salvo `/`) |
 
----
-
-## 3. Conceptos
-
-- **Origen (`origin`)**: `id` único + URL inicial. El crawl solo sigue enlaces cuyo hostname coincide con el de la página actual (comportamiento actual de enlaces internos).
-- **Etiqueta / clase (`label`)**: valor de salida cuando coinciden las reglas de una definición con nombre (p. ej. `"next"`, `"sitefinity"`).
-- **Regla (`rule`)**: condición booleana sobre el documento (ver §5).
-- **Definición de detección (`detector`)**: nombre + lista ordenada de reglas (AND dentro de una definición; OR entre definiciones según política global).
-- **Clave de merge (`mergeKey`)**: función configurable de URL → string para agrupar filas del CSV comparativo (por defecto: pathname sin trailing slash salvo `/`).
+Principios de producto (base vs scripts, promoción si ≥2 usos): [crawl-architecture-plan.md](crawl-architecture-plan.md) §0.
 
 ---
 
-## 4. Formato de configuración (borrador JSON)
+## 3. Formato de configuración (borrador JSON)
 
-Nombre sugerido del fichero: `compare-crawl.config.json` (convención; no obligatorio).
+Nombre sugerido: `compare-crawl.config.json`.
 
 ```json
 {
@@ -55,14 +48,26 @@ Nombre sugerido del fichero: `compare-crawl.config.json` (convención; no obliga
   },
 
   "crawl": {
-    "maxPages": 50000,
+    "maxPages": null,
     "delayMs": 400,
     "mergeByNormalizedPath": true
   },
 
   "pathNormalization": {
     "stripTrailingSlash": true,
-    "includeQuery": false
+    "includeQuery": false,
+    "includeHash": false
+  },
+
+  "urlFilters": {
+    "excludeArticles": true,
+    "articleRules": [
+      {
+        "section": "news",
+        "match": "slug-after-section",
+        "allowSegments": ["feed", "latest"]
+      }
+    ]
   },
 
   "origins": [
@@ -100,96 +105,63 @@ Nombre sugerido del fichero: `compare-crawl.config.json` (convención; no obliga
 }
 ```
 
-### 4.1 Campos aclarados
+El bloque `detection` del ejemplo es el **perfil FXStreet**; otros configs usan otros `label`. Semántica de `articleRules`: [crawl-architecture-plan.md](crawl-architecture-plan.md) §3.2.
 
-- **`crawl.mergeByNormalizedPath`**: si es `true`, la salida principal incluye una fila por clave mergeada con columnas `{mergeKey}_{id}_label` y `{mergeKey}_{id}_url` (nombres exactos a fijar en implementación).
-- **`detection.policy`** (valores tentativos):
-  - `exclusive-first-match`: primera definición cuyas reglas se cumplen gana; si dos definiciones podrían aplicar según orden, solo la primera.
-  - `multi-hit-conflict`: si más de una definición coincide → `conflictLabel`.
-- **`combine`** dentro de una definición: `and` | `or` entre reglas de esa definición (FXStreet actual es OR entre “estilo next” y “script _next”; AND entre meta Sitefinity implícito en una sola regla).
+### 3.1 Campos
 
-Los valores concretos de `policy` y nombres de campos CSV se pueden ajustar en implementación siempre que este documento se actualice.
+| Campo | Notas |
+|-------|--------|
+| `crawl.maxPages` | **Opt-in.** `null` / omitido = sin tope; número = safety cap. CLI: solo limita si se pasa `-m` / `--max-pages`. |
+| `pathNormalization.includeQuery` / `includeHash` | Default `false` (filtros on) |
+| `urlFilters.excludeArticles` | Default `true`; no glob ciego `**/news/**` |
+| `crawl.mergeByNormalizedPath` | Fila por mergeKey; columnas `{id}_label`, `{id}_url` (nombres a fijar en impl.) |
+| `detection.policy` | `exclusive-first-match` \| `multi-hit-conflict` (tentativo) |
+| `combine` | `and` \| `or` dentro de una definition |
 
 ---
 
-## 5. Catálogo de tipos de regla (extensible)
-
-MVP sugerido:
+## 4. Catálogo de tipos de regla HTML (MVP)
 
 | `type` | Parámetros | Semántica |
 |--------|------------|------------|
-| `selectorExists` | `selector` | Al menos un elemento coincide (Cheerio). |
-| `selectorCountMin` | `selector`, `min` | Conteo ≥ `min`. |
-| `metaContentContains` | `name`, `substring`, `caseInsensitive?` | Meta `name` (insensible a mayúsculas en nombre) con `content` que incluye substring. |
-| `anyScriptSrcContains` | `substring`, `caseInsensitive?` | Algún `script[src]` contiene la substring. |
-| `anyLinkHrefMatches` | `pattern` (regex string) | Opcional; útil para patrones internos (con precaución). |
+| `selectorExists` | `selector` | ≥1 match Cheerio |
+| `selectorCountMin` | `selector`, `min` | Conteo ≥ `min` |
+| `metaContentContains` | `name`, `substring`, `caseInsensitive?` | Meta `content` contiene substring |
+| `anyScriptSrcContains` | `substring`, `caseInsensitive?` | Algún `script[src]` |
+| `anyLinkHrefMatches` | `pattern` | Opcional; usar con cuidado |
 
-Reglas futuras (fuera del MVP si no hace falta): `headerPresent`, `htmlContains`, `selectorTextMatches`.
-
----
-
-## 6. Salidas esperadas
-
-1. **CSV principal (comparativo)**  
-   Una fila por `mergeKey` ordenado. Columnas mínimas:
-   - `normalized_path` (o nombre configurable)
-   - Por cada `origin.id`: `{id}_label`, `{id}_url`  
-   Origen sin datos para esa clave: celdas vacías.
-
-2. **Opcional (implementación posterior)**  
-   JSON Lines con un objeto por URL visitada (auditoría).  
-   SQLite / segundo CSV de errores HTTP.
+Futuro (fuera MVP): `headerPresent`, `htmlContains`, `selectorTextMatches`.
 
 ---
 
-## 7. Interfaz CLI (borrador)
+## 5. Salidas
 
-Sin implementar aún; sirve como contrato orientativo:
+1. **CSV comparativo** — una fila por `mergeKey`; `normalized_path`; por origin `{id}_label`, `{id}_url` (vacío si falta).
+2. **Opcional después** — JSON Lines por URL; SQLite / CSV de errores HTTP.
+
+---
+
+## 6. CLI (borrador)
 
 ```text
 scraper compare-crawl --config ./compare-crawl.config.json -o ./out.csv
 ```
 
-Opciones que podrían **sobrescribir** solo para la ejecución (sin editar el fichero):
-
-- `--max-pages`, `--delay`, `--timeout`
-- `--output` / `-o`
-
-El comando actual `fxstreet-dual` puede mantenerse como **atajo** que carga un perfil por defecto equivalente al JSON de ejemplo FXStreet, o deprecarse a favor de `--config` más un ejemplo en `examples/`.
+Overrides de ejecución: `--max-pages`, `--delay`, `--timeout`, `-o`.  
+`fxstreet-dual` / `fxstreet-es` permanecen como **atajos** que cargan el preset FXStreet (no sustituyen el contrato `--config`).
 
 ---
 
-## 8. Estado actual del código vs esta especificación
+## 7. Gap vs código actual
 
-| Pieza actual | Relación |
-|--------------|----------|
-| `dual-origin-crawl.ts` | Solo dos hosts fijos; merge y CSV con columnas `www`/`qa` fijas. Sustituir por motor driven por config. |
-| `env-detect.ts` | Reglas Next/Sitefinity en código. Sustituir por evaluador de `detection.definitions` desde config; opcionalmente mantener helpers de ejemplo o tests. |
-| CLI `fxstreet-dual` | Atajo temporal; alinear con `compare-crawl --config`. |
+| Hoy | Destino |
+|-----|---------|
+| `dual-origin-crawl.ts` hosts/columnas fijas | Motor + config `origins` |
+| `fxstreet-es-crawl.ts` detección hardcodeada | Wrapper + mismo motor/preset |
+| `env-detect.ts` Next/Sitefinity en TS | `evaluateDetection` + definitions en JSON |
+| CLI `crawl` sin filtros default ni checkpoint; `-m` con default numérico | Capa A: filtros; checkpoint opt-in; **`-m` solo si se pasa** (sin flag = sin tope) |
+| Salida solo al final del crawl | Checkpoint A1/A2 en base (§3.5 del plan de arquitectura) |
 
----
+Orden de trabajo: solo en [PROJECT_STATUS.md](../PROJECT_STATUS.md).
 
-## 9. Fuera de alcance del primer incremento (opcional)
-
-- Resume / checkpoints.
-- robots.txt y crawling paralelo (documentados en roadmap global).
-- UI web para editar config.
-
----
-
-## 10. Orden sugerido de implementación (después de aprobar este doc)
-
-1. Tipos TypeScript + validación ligera del JSON (`version`, `origins`, `detection`).
-2. Motor `evaluateDetection(html, detection)` + tests con fragmentos HTML.
-3. `compareCrawl(config)` reemplazando la lógica duplicada de `crawlDualFxstreet`.
-4. Merge genérico por `origin.id` y generación CSV.
-5. Comando CLI `compare-crawl`; perfil de ejemplo FXStreet en `examples/compare-crawl.fxstreet.json`.
-6. Actualizar README y deprecación documentada de `fxstreet-dual` si aplica.
-
----
-
-## Referencias internas
-
-- Roadmap general: `PROJECT_STATUS.md` → sección *Crawl multi-origen y comparación de “entorno”*.
-
-**Versión del documento:** 1.0 · **Fecha:** 6 mayo 2026
+**Versión:** 1.3 · **Fecha:** 3 septiembre 2026

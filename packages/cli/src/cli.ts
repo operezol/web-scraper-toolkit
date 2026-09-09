@@ -10,6 +10,8 @@ import {
   mergePagesByPath,
   mergedPathsToCsvRows,
   formatMergedCsv,
+  crawlFxstreetEs,
+  formatFxstreetEsPagesCsv,
 } from "@operezol/scraper-shared";
 
 const program = new Command();
@@ -144,29 +146,65 @@ program
 
 program
   .command("crawl")
-  .description("Recursively crawl a website and extract all internal links")
+  .description(
+    "Recursively crawl a website (filters on by default: strip query/hash)",
+  )
   .argument("<url>", "Starting URL to crawl from")
   .option("-o, --output <file>", "Output CSV file", "crawl-links.csv")
-  .option("-m, --max-pages <number>", "Maximum number of pages to visit", "100")
+  .option(
+    "-m, --max-pages <number>",
+    "Max pages to visit (omit = no limit)",
+  )
+  .option("-d, --delay <ms>", "Delay between requests in ms", "500")
+  .option("--keep-query", "Keep query string in URL identity")
+  .option("--keep-hash", "Keep hash in URL identity")
+  .option(
+    "--checkpoint-every <n>",
+    "Write partial CSV every N pages (opt-in)",
+  )
   .action(async (url, options) => {
     if (!isValidUrl(url)) {
       console.error(chalk.red("❌ Invalid URL"));
       process.exit(1);
     }
 
-    const maxPages = parseInt(options.maxPages);
+    const maxPages =
+      options.maxPages !== undefined
+        ? parseInt(options.maxPages as string, 10)
+        : undefined;
+    const delayMs = parseInt(options.delay as string, 10);
+    const checkpointEvery =
+      options.checkpointEvery !== undefined
+        ? parseInt(options.checkpointEvery as string, 10)
+        : undefined;
+
     const spinner = ora("Starting crawl...").start();
+    const fs = await import("fs/promises");
+    const outFile = options.output as string;
+    const partialFile = outFile.replace(/(\.\w+)?$/, ".partial$1");
 
     try {
-      const links = await scraper.crawlInternalLinks(
-        url,
+      const links = await scraper.crawlInternalLinks(url, {
         maxPages,
-        (visited, total, currentUrl) => {
-          spinner.text = chalk.cyan(
-            `Crawling... Visited: ${visited}/${maxPages} | Queue: ${total - visited} | Current: ${currentUrl.substring(0, 60)}...`,
+        delayMs,
+        keepQuery: Boolean(options.keepQuery),
+        keepHash: Boolean(options.keepHash),
+        excludeArticles: false,
+        checkpointEvery,
+        onCheckpoint: async (pages) => {
+          const csvContent = "URL\n" + pages.map((p) => p.url).join("\n");
+          await fs.writeFile(partialFile, csvContent, "utf-8");
+          spinner.text = chalk.yellow(
+            `Checkpoint ${pages.length} → ${partialFile}`,
           );
         },
-      );
+        onProgress: ({ visited, queueSize, currentUrl }) => {
+          const cap = maxPages !== undefined ? `/${maxPages}` : "";
+          spinner.text = chalk.cyan(
+            `Crawling... Visited: ${visited}${cap} | Queue: ${queueSize} | ${currentUrl.substring(0, 60)}...`,
+          );
+        },
+      });
 
       spinner.succeed(
         chalk.green(
@@ -174,11 +212,15 @@ program
         ),
       );
 
-      const fs = await import("fs/promises");
       const csvContent = "URL\n" + links.join("\n");
-      await fs.writeFile(options.output, csvContent, "utf-8");
+      await fs.writeFile(outFile, csvContent, "utf-8");
+      try {
+        await fs.unlink(partialFile);
+      } catch {
+        /* no partial */
+      }
 
-      console.log(chalk.green(`\n✓ Saved to ${options.output}`));
+      console.log(chalk.green(`\n✓ Saved to ${outFile}`));
       console.log(chalk.cyan(`\nTotal unique links found: ${links.length}`));
       console.log(chalk.gray(`\nFirst 10 links:`));
       links
@@ -191,6 +233,116 @@ program
       spinner.fail(chalk.red("✗ Crawl failed"));
       console.error(
         chalk.red(error instanceof Error ? error.message : "Unknown error"),
+      );
+      process.exit(1);
+    }
+  });
+
+program
+  .command("fxstreet-es")
+  .description(
+    "Crawl www.fxstreet.es with FXStreet preset (article filters + Next/Sitefinity)",
+  )
+  .option("--url <url>", "Start URL", "https://www.fxstreet.es/")
+  .option("-o, --output <file>", "Output CSV", "fxstreet-es-pages.csv")
+  .option("-m, --max-pages <number>", "Max pages (omit = no limit)")
+  .option("-d, --delay <ms>", "Delay between requests in ms", "400")
+  .option("--keep-query", "Keep query string in URL identity")
+  .option("--keep-hash", "Keep hash in URL identity")
+  .option("--keep-articles", "Do not exclude news/analysis article slugs")
+  .option(
+    "--checkpoint-every <n>",
+    "Write partial CSV every N pages (opt-in)",
+  )
+  .action(async (options) => {
+    const startUrl = options.url as string;
+    if (!isValidUrl(startUrl)) {
+      console.error(chalk.red("❌ Invalid --url"));
+      process.exit(1);
+    }
+
+    const maxPages =
+      options.maxPages !== undefined
+        ? parseInt(options.maxPages as string, 10)
+        : undefined;
+    const delayMs = parseInt(options.delay as string, 10);
+    const checkpointEvery =
+      options.checkpointEvery !== undefined
+        ? parseInt(options.checkpointEvery as string, 10)
+        : undefined;
+
+    const spinner = ora(
+      "Crawling www.fxstreet.es (internal links only)...",
+    ).start();
+    const fs = await import("fs/promises");
+    const outFile = options.output as string;
+    const partialFile = outFile.replace(/(\.\w+)?$/, ".partial$1");
+
+    try {
+      const pages = await crawlFxstreetEs({
+        startUrl,
+        maxPages,
+        delayMs,
+        keepQuery: Boolean(options.keepQuery),
+        keepHash: Boolean(options.keepHash),
+        excludeArticles: !options.keepArticles,
+        checkpointEvery,
+        onCheckpoint: async (partial) => {
+          await fs.writeFile(
+            partialFile,
+            formatFxstreetEsPagesCsv(partial),
+            "utf-8",
+          );
+          spinner.text = chalk.yellow(
+            `Checkpoint ${partial.length} → ${partialFile}`,
+          );
+        },
+        onProgress: ({ visited, queueSize, currentUrl }) => {
+          const cap = maxPages !== undefined ? `/${maxPages}` : "";
+          spinner.text = chalk.cyan(
+            `Visited ${visited}${cap} | Queue ${queueSize} | ${currentUrl.slice(0, 72)}…`,
+          );
+        },
+      });
+
+      const csv = formatFxstreetEsPagesCsv(pages);
+      await fs.writeFile(outFile, csv, "utf-8");
+      try {
+        await fs.unlink(partialFile);
+      } catch {
+        /* no partial */
+      }
+
+      spinner.succeed(
+        chalk.green(`✓ Done. ${pages.length} pages → ${outFile}`),
+      );
+
+      const byEnv = pages.reduce(
+        (acc, p) => {
+          acc[p.environment] = (acc[p.environment] ?? 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+      console.log(chalk.cyan("\nEnvironment counts:"));
+      for (const [env, count] of Object.entries(byEnv).sort()) {
+        console.log(chalk.gray(`  ${env}: ${count}`));
+      }
+
+      console.log(chalk.gray("\nFirst 10 paths:"));
+      [...pages]
+        .sort((a, b) => a.normalizedPath.localeCompare(b.normalizedPath, "es"))
+        .slice(0, 10)
+        .forEach((p) =>
+          console.log(chalk.gray(`  ${p.normalizedPath}  [${p.environment}]`)),
+        );
+      if (pages.length > 10) {
+        console.log(chalk.gray(`  … and ${pages.length - 10} more`));
+      }
+    } catch (error) {
+      spinner.fail(chalk.red("✗ Crawl failed"));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
       );
       process.exit(1);
     }

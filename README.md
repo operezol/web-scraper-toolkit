@@ -1,17 +1,19 @@
-# 🕷️ Web Scraper Toolkit
+# Web Scraper Toolkit
 
-Monorepo TypeScript (pnpm): scraping compartido, REST API, CLI y dashboard web. Estado y roadmap: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+Monorepo TypeScript (pnpm): scraping compartido, REST API, CLI y dashboard web.
 
-## 📦 Packages
+**Estado y roadmap:** [PROJECT_STATUS.md](PROJECT_STATUS.md) · **Docs:** [docs/README.md](docs/README.md)
+
+## Packages
 
 | Package | Description |
 |---------|-------------|
-| **@operezol/scraper-shared** | Scraping, enlaces internos, crawl recursivo, utilidades FXStreet dual |
+| **@operezol/scraper-shared** | Scraping, enlaces internos, crawl, helpers FXStreet (dual + ES) |
 | **@operezol/scraper-api** | REST API (Express) |
 | **@operezol/scraper-cli** | CLI (Commander) |
 | **@operezol/scraper-web** | Dashboard (React, Vite, Tailwind) |
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 pnpm install
@@ -36,30 +38,35 @@ pnpm --filter @operezol/scraper-cli start batch <urls-file> [-o out.json]
 pnpm --filter @operezol/scraper-cli start links <url> [-o links.csv]
 pnpm --filter @operezol/scraper-cli start crawl <url> [-o crawl.csv] [-m maxPages]
 
-# Dos orígenes FXStreet (www + QA), clasificación por HTML, CSV fusionado por path
+# FXStreet ES — listado de páginas + Next/Sitefinity
+pnpm --filter @operezol/scraper-cli start fxstreet-es [-o fxstreet-es-pages.csv] [--url URL] [-m N] [-d ms]
+
+# FXStreet www + QA — CSV fusionado por path
 pnpm --filter @operezol/scraper-cli start fxstreet-dual [-o fxstreet-www-qa-env.csv] [--www URL] [--qa URL] [-m N] [-d ms]
 ```
 
-`fxstreet-dual` encola **solo enlaces internos** por host, visita cada URL como mucho una vez y escribe CSV con columnas `normalized_path`, `www_environment`, `qa_environment`, `www_url`, `qa_url`. Detección: Next (`style[data-precedence="next"]` o `script[src*="_next"]`), Sitefinity (`meta[name="Generator"]` con Sitefinity), `conflict` si ambas, `unknown` si no aplica o falla la petición. La ruta `-o` es relativa al cwd (con `pnpm --filter` suele ser `packages/cli`).
+- **`fxstreet-es`:** enlaces internos en `www.fxstreet.es` → CSV `normalized_path,environment,url`.
+- **`fxstreet-dual`:** www + qa `fxstreet.com` → CSV `normalized_path,www_environment,qa_environment,www_url,qa_url`.
+- **Detección (hoy):** Next (`style[data-precedence="next"]` o `script[src*="_next"]`), Sitefinity (meta Generator), `conflict` / `unknown`. `-o` relativo al cwd (`pnpm --filter` → suele ser `packages/cli`).
 
-**Roadmap / especificación** de un crawl comparativo **solo por config** (sin URLs ni reglas fijas en código): [docs/flexible-compare-crawl.md](docs/flexible-compare-crawl.md).
+Planificación (capas, filtros, compare por config): [docs/README.md](docs/README.md).
 
-## 🏗️ Project Structure
+## Project structure
 
 ```
 web-scraper-toolkit/
 ├── packages/
-│   ├── shared/src/   scraper.ts, link-extract.ts, env-detect.ts, dual-origin-crawl.ts, types.ts, utils.ts
+│   ├── shared/src/   scraper, link-extract, env-detect, dual-origin-crawl, fxstreet-es-crawl, …
 │   ├── api/src/
 │   ├── cli/src/
 │   └── web/src/
-├── docs/
+├── docs/             ver docs/README.md
 ├── package.json
 ├── pnpm-workspace.yaml
 └── tsconfig.json
 ```
 
-## 🛠️ Development
+## Development
 
 ```bash
 pnpm dev:api    # API
@@ -69,7 +76,7 @@ pnpm test
 pnpm clean
 ```
 
-## 📚 Programmatic API (shared)
+## Programmatic API (shared)
 
 ```typescript
 import { WebScraper } from '@operezol/scraper-shared'
@@ -81,30 +88,26 @@ await scraper.extractInternalLinks('https://example.com')
 await scraper.crawlInternalLinks('https://example.com', 100, (v, t, u) => console.log(v, u))
 ```
 
-**FXStreet dual (same as CLI internals):** `crawlDualFxstreet`, `mergePagesByPath`, `mergedPathsToCsvRows`, `formatMergedCsv`, `detectPageEnvironment` — import from `@operezol/scraper-shared`.
+Helpers FXStreet: `crawlFxstreetEs`, `formatFxstreetEsPagesCsv`, `crawlDualFxstreet`, `mergePagesByPath`, `mergedPathsToCsvRows`, `formatMergedCsv`, `detectPageEnvironment`.
 
-Tipos principales: `ScraperOptions`, `ScraperResult` / `ScraperError` en el paquete publicado.
+Tipos: `ScraperOptions`, `ScraperResult` / `ScraperError`.
 
-## 🎯 Features
+## Features (actuales)
 
-TypeScript estricto, workspaces, API Express, CLI Commander, Cheerio + Axios, dashboard React, batch/links/crawl, **FXStreet dual crawl** (pendiente generalización: ver `docs/flexible-compare-crawl.md`).
+TypeScript estricto, workspaces, Express, Commander, Cheerio + Axios, dashboard React, `scrape` / `batch` / `links` / `crawl`, FXStreet dual + ES (generalización planificada en docs).
 
-## 🔧 Tech Stack
+## Tech stack
 
 TypeScript, pnpm, Express, Commander, Cheerio, Axios, Chalk, Ora; web: React, Vite, Tailwind, Zustand.
 
-## 📝 License
+## License
 
 MIT © Oriol Pérez Olivares
 
-## 🤝 Contributing
+## Contributing
 
 Pull requests welcome.
 
-## 📧 Contact
+## Contact
 
 - GitHub: [@operezol](https://github.com/operezol)
-
----
-
-**Made with ❤️ by Oriol Pérez Olivares**
