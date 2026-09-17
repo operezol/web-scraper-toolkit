@@ -93,7 +93,7 @@ export async function crawlDualFxstreet(
         headers: defaultHeaders,
         timeout: timeoutMs,
         responseType: "text",
-        validateStatus: (s) => s >= 200 && s < 400,
+        validateStatus: (s) => s >= 200 && s < 300,
       });
 
       const html = response.data;
@@ -119,13 +119,7 @@ export async function crawlDualFxstreet(
         }
       }
     } catch {
-      // Still record visit with unknown env if we need — skip row or add error row
-      results.push({
-        url: currentUrl,
-        hostKey,
-        normalizedPath: normalizeInternalPath(currentUrl),
-        environment: "unknown",
-      });
+      // Linked but not accessible — skip; do not emit a fake inventory row.
     }
 
     if (delayMs > 0) {

@@ -12,6 +12,9 @@ import {
   formatMergedCsv,
   crawlFxstreetEs,
   formatFxstreetEsPagesCsv,
+  formatFxstreetEsBrokenCsv,
+  compareOrigins,
+  formatOriginCompareCsv,
 } from "@operezol/scraper-shared";
 
 const program = new Command();
@@ -191,8 +194,10 @@ program
         keepHash: Boolean(options.keepHash),
         excludeArticles: false,
         checkpointEvery,
-        onCheckpoint: async (pages) => {
-          const csvContent = "URL\n" + pages.map((p) => p.url).join("\n");
+        onCheckpoint: async ({ pages }) => {
+          const csvContent =
+            "URL,found_on\n" +
+            pages.map((p) => `${p.url},${p.foundOn}`).join("\n");
           await fs.writeFile(partialFile, csvContent, "utf-8");
           spinner.text = chalk.yellow(
             `Checkpoint ${pages.length} → ${partialFile}`,
@@ -272,14 +277,16 @@ program
         : undefined;
 
     const spinner = ora(
-      "Crawling www.fxstreet.es (internal links only)...",
+      "Crawling www.fxstreet.es (accessible pages only)...",
     ).start();
     const fs = await import("fs/promises");
     const outFile = options.output as string;
+    const brokenFile = outFile.replace(/(\.\w+)?$/, ".broken$1");
     const partialFile = outFile.replace(/(\.\w+)?$/, ".partial$1");
+    const brokenPartialFile = brokenFile.replace(/(\.\w+)?$/, ".partial$1");
 
     try {
-      const pages = await crawlFxstreetEs({
+      const { pages, broken } = await crawlFxstreetEs({
         startUrl,
         maxPages,
         delayMs,
@@ -290,11 +297,16 @@ program
         onCheckpoint: async (partial) => {
           await fs.writeFile(
             partialFile,
-            formatFxstreetEsPagesCsv(partial),
+            formatFxstreetEsPagesCsv(partial.pages),
+            "utf-8",
+          );
+          await fs.writeFile(
+            brokenPartialFile,
+            formatFxstreetEsBrokenCsv(partial.broken),
             "utf-8",
           );
           spinner.text = chalk.yellow(
-            `Checkpoint ${partial.length} → ${partialFile}`,
+            `Checkpoint ${partial.pages.length} ok / ${partial.broken.length} broken → ${partialFile}`,
           );
         },
         onProgress: ({ visited, queueSize, currentUrl }) => {
@@ -307,14 +319,23 @@ program
 
       const csv = formatFxstreetEsPagesCsv(pages);
       await fs.writeFile(outFile, csv, "utf-8");
-      try {
-        await fs.unlink(partialFile);
-      } catch {
-        /* no partial */
+      await fs.writeFile(
+        brokenFile,
+        formatFxstreetEsBrokenCsv(broken),
+        "utf-8",
+      );
+      for (const extra of [partialFile, brokenPartialFile]) {
+        try {
+          await fs.unlink(extra);
+        } catch {
+          /* no partial */
+        }
       }
 
       spinner.succeed(
-        chalk.green(`✓ Done. ${pages.length} pages → ${outFile}`),
+        chalk.green(
+          `✓ Done. ${pages.length} accessible → ${outFile} · ${broken.length} broken → ${brokenFile}`,
+        ),
       );
 
       const byEnv = pages.reduce(
@@ -324,17 +345,21 @@ program
         },
         {} as Record<string, number>,
       );
-      console.log(chalk.cyan("\nEnvironment counts:"));
+      console.log(chalk.cyan("\nEnvironment counts (accessible):"));
       for (const [env, count] of Object.entries(byEnv).sort()) {
         console.log(chalk.gray(`  ${env}: ${count}`));
       }
 
-      console.log(chalk.gray("\nFirst 10 paths:"));
+      console.log(chalk.gray("\nFirst 10 accessible paths:"));
       [...pages]
         .sort((a, b) => a.normalizedPath.localeCompare(b.normalizedPath, "es"))
         .slice(0, 10)
         .forEach((p) =>
-          console.log(chalk.gray(`  ${p.normalizedPath}  [${p.environment}]`)),
+          console.log(
+            chalk.gray(
+              `  ${p.normalizedPath}  [${p.environment}]  found_on=${p.foundOn || "(start)"}`,
+            ),
+          ),
         );
       if (pages.length > 10) {
         console.log(chalk.gray(`  … and ${pages.length - 10} more`));
@@ -433,6 +458,79 @@ program
       }
     } catch (error) {
       spinner.fail(chalk.red("✗ Crawl failed"));
+      console.error(
+        chalk.red(error instanceof Error ? error.message : String(error)),
+      );
+      process.exit(1);
+    }
+  });
+
+program
+  .command("compare-origins")
+  .description(
+    "Crawl two origins (accessible pages only) and merge by path + known ES aliases",
+  )
+  .requiredOption("--legacy <url>", "Legacy start URL")
+  .requiredOption("--processed <url>", "Processed / Next start URL")
+  .option(
+    "-o, --output <file>",
+    "Output CSV",
+    "origin-compare.csv",
+  )
+  .option("-m, --max-pages <number>", "Max accessible pages per origin")
+  .option("-d, --delay <ms>", "Delay between requests in ms", "400")
+  .action(async (options) => {
+    const legacyUrl = options.legacy as string;
+    const processedUrl = options.processed as string;
+    if (!isValidUrl(legacyUrl) || !isValidUrl(processedUrl)) {
+      console.error(chalk.red("❌ Invalid --legacy or --processed URL"));
+      process.exit(1);
+    }
+
+    const maxPages =
+      options.maxPages !== undefined
+        ? parseInt(options.maxPages as string, 10)
+        : undefined;
+    const delayMs = parseInt(options.delay as string, 10);
+    const spinner = ora("Comparing origins (legacy ∥ processed)…").start();
+
+    try {
+      const { rows, legacy, processed } = await compareOrigins({
+        legacyStartUrl: legacyUrl,
+        processedStartUrl: processedUrl,
+        maxPages,
+        delayMs,
+        onProgress: (side, { visited, queueSize, currentUrl }) => {
+          spinner.text = chalk.cyan(
+            `${side} ${visited} ok | q ${queueSize} | ${currentUrl.slice(0, 64)}…`,
+          );
+        },
+      });
+
+      const csv = formatOriginCompareCsv(rows);
+      const fs = await import("fs/promises");
+      const outFile = options.output as string;
+      await fs.writeFile(outFile, csv, "utf-8");
+
+      const byType = rows.reduce(
+        (acc, r) => {
+          acc[r.matchType] = (acc[r.matchType] ?? 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
+      spinner.succeed(
+        chalk.green(
+          `✓ ${rows.length} path keys → ${outFile} (legacy ${legacy.pages.length} ok / ${legacy.broken.length} broken · processed ${processed.pages.length} ok / ${processed.broken.length} broken)`,
+        ),
+      );
+      console.log(chalk.cyan("\nMatch types:"));
+      for (const [k, n] of Object.entries(byType).sort()) {
+        console.log(chalk.gray(`  ${k}: ${n}`));
+      }
+    } catch (error) {
+      spinner.fail(chalk.red("✗ Compare failed"));
       console.error(
         chalk.red(error instanceof Error ? error.message : String(error)),
       );

@@ -1,6 +1,6 @@
 # Web Scraper Toolkit — Estado del proyecto
 
-**Actualizado:** 3 septiembre 2026 · **Repo:** [github.com/operezol/web-scraper-toolkit](https://github.com/operezol/web-scraper-toolkit)
+**Actualizado:** 17 septiembre 2026 · **Repo:** [github.com/operezol/web-scraper-toolkit](https://github.com/operezol/web-scraper-toolkit)
 
 Monorepo (pnpm): TypeScript, React/Vite/Tailwind (web), Express (API), Commander (CLI).
 
@@ -26,7 +26,8 @@ Uso y ejemplos de comandos: [README.md](README.md).
 | Comando | Comportamiento |
 |---------|----------------|
 | `fxstreet-dual` | Crawl www + qa `fxstreet.com`; detecta Next/Sitefinity; CSV merge por path |
-| `fxstreet-es` | Wrapper sobre `crawlSite` + preset FXStreet; CSV `normalized_path,environment,url` |
+| `fxstreet-es` | Wrapper sobre `crawlSite` + preset; CSV accesibles `normalized_path,environment,http_status,found_on,url` + sidecar `*.broken.csv` |
+| `compare-origins` | Dos crawls (legacy vs processed) + merge por path y aliases ES |
 
 **Análisis CSV ES (7264 URLs, 2026-09-03):** bajo `news` / `analysis`, conservar landings + `feed`/`latest`; el resto son slugs de artículo (~3000 news). ~3150 URLs con query (casi todas `/account/login?...`) → strip query. Preset: `FXSTREET_ARTICLE_RULES` + `FXSTREET_DETECTION`.
 
@@ -46,7 +47,7 @@ Contrato compare: [docs/flexible-compare-crawl.md](docs/flexible-compare-crawl.m
 - [x] `url-normalize` (strip query/hash; default filtros on; `--keep-query` / `--keep-hash`)
 - [x] `ArticlePathRule` + `isArticlePath` + flags CLI (`--keep-articles`, …)
 - [x] `maxPages` / `-m` **opt-in**: sin flag = sin límite
-- [x] `crawlSite` / `crawlInternalLinks` + tests unitarios
+- [x] `crawlSite` / `crawlInternalLinks`: inventario = **solo 2xx**; rotos aparte con `foundOn`
 - [x] `evaluateDetection` genérico + preset FXStreet (`next`/`sitefinity`)
 - [x] Checkpoint A1: flush parcial **opt-in** (`--checkpoint-every`)
 - [ ] Checkpoint A2: resume **opt-in** (`visited` + cola + `--resume`)
@@ -55,7 +56,7 @@ Contrato compare: [docs/flexible-compare-crawl.md](docs/flexible-compare-crawl.m
 
 - [ ] Ejemplo JSON FXStreet (origins, article `news` + allowlist, detection `next`/`sitefinity`)
 - [ ] Ampliar allowlist `news` con paths no-post reales (`*/news/*`)
-- [ ] `compareCrawl(config)` + CLI `compare-crawl --config`
+- [x] CLI `compare-origins` (merge por path + aliases ES; `compareCrawl --config` sigue pendiente)
 - [x] Wrappers `fxstreet-es` sobre motor + preset (dual aún acoplado en parte)
 - [ ] Wrappers `fxstreet-dual` sobre motor + preset
 - [x] Allowlist FXStreet `news`/`analysis`: `feed`, `latest` (análisis CSV ES 2026-09)

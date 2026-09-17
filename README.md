@@ -41,12 +41,16 @@ pnpm --filter @operezol/scraper-cli start crawl <url> [-o crawl.csv] [-m maxPage
 # FXStreet ES — listado de páginas + Next/Sitefinity
 pnpm --filter @operezol/scraper-cli start fxstreet-es [-o fxstreet-es-pages.csv] [--url URL] [-m N] [-d ms]
 
+# Comparar dos orígenes (accesibles + found_on)
+pnpm --filter @operezol/scraper-cli start compare-origins --legacy URL --processed URL [-o origin-compare.csv] [-m N] [-d ms]
+
 # FXStreet www + QA — CSV fusionado por path
 pnpm --filter @operezol/scraper-cli start fxstreet-dual [-o fxstreet-www-qa-env.csv] [--www URL] [--qa URL] [-m N] [-d ms]
 ```
 
-- **`fxstreet-es`:** enlaces internos en `www.fxstreet.es` → CSV `normalized_path,environment,url`.
-- **`fxstreet-dual`:** www + qa `fxstreet.com` → CSV `normalized_path,www_environment,qa_environment,www_url,qa_url`.
+- **`fxstreet-es`:** enlaces internos en `www.fxstreet.es` que **responden 2xx**. CSV `normalized_path,environment,http_status,found_on,url`. Los enlaces rotos van a `*.broken.csv` (`found_on` = página que los enlazaba).
+- **`compare-origins`:** crawl paralelo de dos orígenes (p. ej. legacy `fxstreet.es` vs QA Next) → CSV de paralelismos (`path_key`, `match_type`, HTTP, `found_on`, aliases calendario/educación/bróker).
+- **`fxstreet-dual`:** www + qa `fxstreet.com` → CSV `normalized_path,www_environment,qa_environment,www_url,qa_url`. Solo páginas accesibles (2xx).
 - **Detección (hoy):** Next (`style[data-precedence="next"]` o `script[src*="_next"]`), Sitefinity (meta Generator), `conflict` / `unknown`. `-o` relativo al cwd (`pnpm --filter` → suele ser `packages/cli`).
 
 Planificación (capas, filtros, compare por config): [docs/README.md](docs/README.md).
@@ -88,7 +92,7 @@ await scraper.extractInternalLinks('https://example.com')
 await scraper.crawlInternalLinks('https://example.com', 100, (v, t, u) => console.log(v, u))
 ```
 
-Helpers FXStreet: `crawlFxstreetEs`, `formatFxstreetEsPagesCsv`, `crawlDualFxstreet`, `mergePagesByPath`, `mergedPathsToCsvRows`, `formatMergedCsv`, `detectPageEnvironment`.
+Helpers: `crawlFxstreetEs`, `formatFxstreetEsPagesCsv`, `formatFxstreetEsBrokenCsv`, `compareOrigins`, `formatOriginCompareCsv`, `crawlDualFxstreet`, `mergePagesByPath`, `mergedPathsToCsvRows`, `formatMergedCsv`, `detectPageEnvironment`.
 
 Tipos: `ScraperOptions`, `ScraperResult` / `ScraperError`.
 

@@ -19,9 +19,9 @@ export interface CrawlOptions {
   allowedHosts?: string[];
   /** Optional HTML label detection. */
   detection?: DetectionConfig;
-  /** Opt-in: flush every N results via onCheckpoint. */
+  /** Opt-in: flush every N **accessible** pages via onCheckpoint. */
   checkpointEvery?: number;
-  onCheckpoint?: (pages: CrawlPage[]) => void | Promise<void>;
+  onCheckpoint?: (result: CrawlResult) => void | Promise<void>;
   onProgress?: (p: {
     visited: number;
     queueSize: number;
@@ -32,8 +32,31 @@ export interface CrawlOptions {
 export interface CrawlPage {
   url: string;
   normalizedPath: string;
+  /** HTTP status of the successful fetch (2xx after redirects). */
+  statusCode: number;
+  /**
+   * Normalized path of the page whose HTML contained this link.
+   * Empty for the crawl seed.
+   */
+  foundOn: string;
   /** Present when detection config provided */
   label?: string;
+}
+
+/** Linked URL that failed to fetch (404, timeout, off-host, …). Not in `pages`. */
+export interface CrawlBrokenLink {
+  url: string;
+  normalizedPath: string;
+  /** Normalized path of the page that linked here. Empty for the seed. */
+  foundOn: string;
+  /** 0 = network/timeout; otherwise HTTP status. */
+  statusCode: number;
+}
+
+export interface CrawlResult {
+  /** Only URLs that returned 2xx (after following redirects). */
+  pages: CrawlPage[];
+  broken: CrawlBrokenLink[];
 }
 
 export type { ArticlePathRule, DetectionConfig, UrlNormalizeOptions };

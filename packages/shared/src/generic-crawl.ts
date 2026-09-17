@@ -1,7 +1,12 @@
 import axios from "axios";
 import type { AxiosResponse } from "axios";
 import { isArticlePath } from "./article-path.js";
-import type { CrawlOptions, CrawlPage } from "./crawl-types.js";
+import type {
+  CrawlBrokenLink,
+  CrawlOptions,
+  CrawlPage,
+  CrawlResult,
+} from "./crawl-types.js";
 import { evaluateDetection } from "./detection.js";
 import { extractInternalLinksFromHtml } from "./link-extract.js";
 import {
@@ -14,10 +19,25 @@ const defaultHeaders = {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 };
 
+interface QueueItem {
+  url: string;
+  foundOn: string;
+}
+
+function httpStatusFromError(error: unknown): number {
+  if (axios.isAxiosError(error) && typeof error.response?.status === "number") {
+    return error.response.status;
+  }
+  return 0;
+}
+
 /**
  * Generic BFS internal-link crawl with optional filters, detection, checkpoint.
+ *
+ * The result list only contains URLs that responded 2xx. Linked-but-dead URLs
+ * go to `broken` with the page they were found on (`foundOn`).
  */
-export async function crawlSite(options: CrawlOptions): Promise<CrawlPage[]> {
+export async function crawlSite(options: CrawlOptions): Promise<CrawlResult> {
   const {
     startUrl,
     maxPages,
@@ -45,18 +65,29 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlPage[]> {
 
   const seed = normalize(startUrl);
   if (shouldSkipPath(normalizeInternalPath(seed))) {
-    return [];
+    return { pages: [], broken: [] };
   }
 
   const visited = new Set<string>();
-  const queue: string[] = [seed];
-  const results: CrawlPage[] = [];
+  const queue: QueueItem[] = [{ url: seed, foundOn: "" }];
+  const pages: CrawlPage[] = [];
+  const broken: CrawlBrokenLink[] = [];
 
   const withinLimit = () =>
-    maxPages === undefined || maxPages <= 0 || results.length < maxPages;
+    maxPages === undefined || maxPages <= 0 || pages.length < maxPages;
+
+  const pushBroken = (item: QueueItem, path: string, statusCode: number) => {
+    broken.push({
+      url: item.url,
+      normalizedPath: path,
+      foundOn: item.foundOn,
+      statusCode,
+    });
+  };
 
   while (queue.length > 0 && withinLimit()) {
-    const currentUrl = queue.shift()!;
+    const item = queue.shift()!;
+    const currentUrl = item.url;
     if (visited.has(currentUrl)) continue;
     visited.add(currentUrl);
 
@@ -72,7 +103,7 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlPage[]> {
     if (shouldSkipPath(path)) continue;
 
     onProgress?.({
-      visited: results.length + 1,
+      visited: pages.length + 1,
       queueSize: queue.length,
       currentUrl,
     });
@@ -82,7 +113,7 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlPage[]> {
         headers: defaultHeaders,
         timeout: timeoutMs,
         responseType: "text",
-        validateStatus: (s) => s >= 200 && s < 400,
+        validateStatus: (s) => s >= 200 && s < 300,
       });
 
       const html = response.data;
@@ -92,24 +123,20 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlPage[]> {
 
       const finalHost = new URL(finalUrl).hostname;
       if (!allowedHosts.has(finalHost)) {
-        results.push({
-          url: currentUrl,
-          normalizedPath: path,
-          label: detection ? "unknown" : undefined,
-        });
+        pushBroken(item, path, response.status);
       } else {
         const finalPath = normalizeInternalPath(finalUrl);
         if (shouldSkipPath(finalPath)) {
-          // discovered as redirect to article — record nothing, don't enqueue
+          // redirect landed on an excluded article — do not record
         } else {
           const page: CrawlPage = {
             url: finalUrl,
             normalizedPath: finalPath,
-            label: detection
-              ? evaluateDetection(html, detection)
-              : undefined,
+            statusCode: response.status,
+            foundOn: item.foundOn,
+            label: detection ? evaluateDetection(html, detection) : undefined,
           };
-          results.push(page);
+          pages.push(page);
 
           const links = extractInternalLinksFromHtml(html, finalUrl);
           for (const link of links) {
@@ -121,25 +148,23 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlPage[]> {
             }
             if (!allowedHosts.has(new URL(n).hostname)) continue;
             if (shouldSkipPath(normalizeInternalPath(n))) continue;
-            if (!visited.has(n)) queue.push(n);
+            if (!visited.has(n)) {
+              queue.push({ url: n, foundOn: finalPath });
+            }
           }
         }
       }
-    } catch {
-      results.push({
-        url: currentUrl,
-        normalizedPath: path,
-        label: detection ? "unknown" : undefined,
-      });
+    } catch (error) {
+      pushBroken(item, path, httpStatusFromError(error));
     }
 
     if (
       checkpointEvery &&
       checkpointEvery > 0 &&
-      results.length > 0 &&
-      results.length % checkpointEvery === 0
+      pages.length > 0 &&
+      pages.length % checkpointEvery === 0
     ) {
-      await onCheckpoint?.(results);
+      await onCheckpoint?.({ pages, broken });
     }
 
     if (delayMs > 0) {
@@ -147,7 +172,7 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlPage[]> {
     }
   }
 
-  return results;
+  return { pages, broken };
 }
 
 function resolveFinalUrl(response: AxiosResponse, fallback: string): string {

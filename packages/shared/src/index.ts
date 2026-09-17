@@ -9,5 +9,5 @@ export * from "./url-normalize.js";
 export * from "./article-path.js";
 export * from "./detection.js";
 export * from "./crawl-types.js";
-export * from "./generic-crawl.js";
+export * from "./compare-origins.js";
 export * from "./presets/fxstreet.js";

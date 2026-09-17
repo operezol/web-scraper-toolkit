@@ -111,7 +111,7 @@ export class WebScraper {
         onProgress(visited, visited + queueSize, currentUrl);
     }
 
-    const pages = await crawlSite(opts);
+    const { pages } = await crawlSite(opts);
     return pages.map((p) => p.url).sort();
   }
 }
