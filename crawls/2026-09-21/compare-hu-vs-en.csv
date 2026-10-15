@@ -1,0 +1,42 @@
+path_key,match_type,path_en,path_locale,http_en,http_locale,env_en,env_locale,found_on_en,found_on_locale,url_en,url_locale,alias_family,notes
+/,locale-only,/,/,403,200,,sitefinity,,,https://www.fxstreet.com/,https://www.fxstreet.hu/,,"en linked but HTTP 403 from (start); accessible on locale, not in EN crawl"
+/analysis,neither-accessible,/analysis,,403,,,,(sitemap),,https://www.fxstreet.com/analysis,,,en linked but HTTP 403 from (sitemap)
+/analysis/feed,neither-accessible,/analysis/feed,,403,,,,(sitemap),,https://www.fxstreet.com/analysis/feed,,,en linked but HTTP 403 from (sitemap)
+/analysis/latest,neither-accessible,/analysis/latest,,403,,,,(sitemap),,https://www.fxstreet.com/analysis/latest,,,en linked but HTTP 403 from (sitemap)
+/author,neither-accessible,/author,,403,,,,(sitemap),,https://www.fxstreet.com/author,,,en linked but HTTP 403 from (sitemap)
+/bonds,neither-accessible,/bonds,,403,,,,(sitemap),,https://www.fxstreet.com/bonds,,,en linked but HTTP 403 from (sitemap)
+/brokers,locale-only,/brokers,/brokers,403,200,,sitefinity,(sitemap),/,https://www.fxstreet.com/brokers,https://www.fxstreet.hu/brokers,,"en linked but HTTP 403 from (sitemap); accessible on locale, not in EN crawl"
+/brokers/best,neither-accessible,/brokers/best,,403,,,,(sitemap),,https://www.fxstreet.com/brokers/best,,,en linked but HTTP 403 from (sitemap)
+/brokers/fxpro,locale-only,,/brokers/fxpro,,200,,sitefinity,,/brokers,,https://www.fxstreet.hu/brokers/fxpro,,"accessible on locale, not in EN crawl"
+/brokers/reviews,neither-accessible,/brokers/reviews,,403,,,,(sitemap),,https://www.fxstreet.com/brokers/reviews,,,en linked but HTTP 403 from (sitemap)
+/cryptocurrencies,neither-accessible,/cryptocurrencies,,403,,,,(sitemap),,https://www.fxstreet.com/cryptocurrencies,,,en linked but HTTP 403 from (sitemap)
+/cryptocurrencies/news,neither-accessible,/cryptocurrencies/news,,403,,,,(sitemap),,https://www.fxstreet.com/cryptocurrencies/news,,,en linked but HTTP 403 from (sitemap)
+/cryptocurrencies/news/feed,neither-accessible,/cryptocurrencies/news/feed,,403,,,,(sitemap),,https://www.fxstreet.com/cryptocurrencies/news/feed,,,en linked but HTTP 403 from (sitemap)
+/cryptocurrencies/rates-charts,neither-accessible,/cryptocurrencies/rates-charts,,403,,,,(sitemap),,https://www.fxstreet.com/cryptocurrencies/rates-charts,,,en linked but HTTP 403 from (sitemap)
+/economic-calendar,locale-only,/economic-calendar,/economic-calendar,403,200,,sitefinity,(sitemap),/,https://www.fxstreet.com/economic-calendar,https://www.fxstreet.hu/economic-calendar,,"en linked but HTTP 403 from (sitemap); accessible on locale, not in EN crawl"
+/economic-calendar/forex-market-hours,neither-accessible,/economic-calendar/forex-market-hours,,403,,,,(sitemap),,https://www.fxstreet.com/economic-calendar/forex-market-hours,,,en linked but HTTP 403 from (sitemap)
+/economic-calendar/world-interest-rates,neither-accessible,/economic-calendar/world-interest-rates,,403,,,,(sitemap),,https://www.fxstreet.com/economic-calendar/world-interest-rates,,,en linked but HTTP 403 from (sitemap)
+/education,neither-accessible,/education,,403,,,,(sitemap),,https://www.fxstreet.com/education,,,en linked but HTTP 403 from (sitemap)
+/education/feed,neither-accessible,/education/feed,,403,,,,(sitemap),,https://www.fxstreet.com/education/feed,,,en linked but HTTP 403 from (sitemap)
+/education/latest,neither-accessible,/education/latest,,403,,,,(sitemap),,https://www.fxstreet.com/education/latest,,,en linked but HTTP 403 from (sitemap)
+/info/advertising-and-sponsorship,neither-accessible,,/info/advertising-and-sponsorship,,0,,,,/,,https://www.fxstreet.hu/info/advertising-and-sponsorship,,locale linked but HTTP fail from /
+/info/contact-us,locale-only,/info/contact-us,/info/contact-us,403,200,,sitefinity,(sitemap),/,https://www.fxstreet.com/info/contact-us,https://www.fxstreet.hu/info/contact-us,,"en linked but HTTP 403 from (sitemap); accessible on locale, not in EN crawl"
+/info/corporate-identity,neither-accessible,,/info/corporate-identity,,404,,,,/,,https://www.fxstreet.hu/info/corporate-identity,,locale linked but HTTP 404 from /
+/info/editorial-guidelines,neither-accessible,,/info/editorial-guidelines,,404,,,,/,,https://www.fxstreet.hu/info/editorial-guidelines,,locale linked but HTTP 404 from /
+/info/ethical-code,neither-accessible,,/info/ethical-code,,404,,,,/,,https://www.fxstreet.hu/info/ethical-code,,locale linked but HTTP 404 from /
+/info/jobs,neither-accessible,,/info/jobs,,404,,,,/,,https://www.fxstreet.hu/info/jobs,,locale linked but HTTP 404 from /
+/info/prevention,neither-accessible,/info/prevention,/info/prevention,403,404,,,(sitemap),/,https://www.fxstreet.com/info/prevention,https://www.fxstreet.hu/info/prevention,,locale linked but HTTP 404 from /; en linked but HTTP 403 from (sitemap)
+/info/sitemap,neither-accessible,,/info/sitemap,,404,,,,/,,https://www.fxstreet.hu/info/sitemap,,locale linked but HTTP 404 from /
+/info/terms-and-conditions,locale-only,,/info/terms-and-conditions,,200,,sitefinity,,/info/terms-conditions,,https://www.fxstreet.hu/info/terms-and-conditions,,"accessible on locale, not in EN crawl"
+/info/terms-conditions,locale-only,/info/terms-conditions,/info/terms-conditions,403,200,,sitefinity,(sitemap),/,https://www.fxstreet.com/info/terms-conditions,https://www.fxstreet.hu/info/terms-conditions,,"en linked but HTTP 403 from (sitemap); accessible on locale, not in EN crawl"
+/markets/commodities,neither-accessible,/markets/commodities,,403,,,,(sitemap),,https://www.fxstreet.com/markets/commodities,,,en linked but HTTP 403 from (sitemap)
+/markets/equities,neither-accessible,/markets/equities,,403,,,,(sitemap),,https://www.fxstreet.com/markets/equities,,,en linked but HTTP 403 from (sitemap)
+/news,neither-accessible,/news,,403,,,,(sitemap),,https://www.fxstreet.com/news,,,en linked but HTTP 403 from (sitemap)
+/news/feed,neither-accessible,/news/feed,,403,,,,(sitemap),,https://www.fxstreet.com/news/feed,,,en linked but HTTP 403 from (sitemap)
+/news/latest,neither-accessible,/news/latest,,403,,,,(sitemap),,https://www.fxstreet.com/news/latest,,,en linked but HTTP 403 from (sitemap)
+/rates-charts,locale-only,/rates-charts,/rates-charts,403,200,,sitefinity,(sitemap),/,https://www.fxstreet.com/rates-charts,https://www.fxstreet.hu/rates-charts,,"en linked but HTTP 403 from (sitemap); accessible on locale, not in EN crawl"
+/rates-charts/chart,locale-only,/rates-charts/chart,/rates-charts/chart,403,200,,sitefinity,(sitemap),/,https://www.fxstreet.com/rates-charts/chart,https://www.fxstreet.hu/rates-charts/chart,,"en linked but HTTP 403 from (sitemap); accessible on locale, not in EN crawl"
+/rates-charts/chart-interactive,neither-accessible,/rates-charts/chart-interactive,/rates-charts/chart-interactive,403,404,,,(sitemap),/rates-charts,https://www.fxstreet.com/rates-charts/chart-interactive,https://www.fxstreet.hu/rates-charts/chart-interactive,,locale linked but HTTP 404 from /rates-charts; en linked but HTTP 403 from (sitemap)
+/rates-charts/forecast,neither-accessible,/rates-charts/forecast,,403,,,,(sitemap),,https://www.fxstreet.com/rates-charts/forecast,,,en linked but HTTP 403 from (sitemap)
+/rates-charts/indicators,neither-accessible,/rates-charts/indicators,,403,,,,(sitemap),,https://www.fxstreet.com/rates-charts/indicators,,,en linked but HTTP 403 from (sitemap)
+/rates-charts/rates,locale-only,/rates-charts/rates,/rates-charts/rates,403,200,,sitefinity,(sitemap),/,https://www.fxstreet.com/rates-charts/rates,https://www.fxstreet.hu/rates-charts/rates,,"en linked but HTTP 403 from (sitemap); accessible on locale, not in EN crawl"

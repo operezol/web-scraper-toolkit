@@ -1,0 +1,17 @@
+pattern,type,count,examples
+/,static,1,/
+/broker1,static,1,/broker1
+/brokers,static,1,/brokers
+/brokers/[slug],dynamic,1,/brokers/fxpro
+/economic-calendar,static,1,/economic-calendar
+/info/contac-us,static,1,/info/contac-us
+/info/contact-us,static,1,/info/contact-us
+/info/gdpr-cookies,static,1,/info/gdpr-cookies
+/info/products/economic-calendar,static,1,/info/products/economic-calendar
+/info/terms-and-conditions,static,1,/info/terms-and-conditions
+/info/terms-conditions,static,1,/info/terms-conditions
+/news,static,1,/news
+/rates-charts,static,1,/rates-charts
+/rates-charts/chart,static,1,/rates-charts/chart
+/rates-charts/chart-interactive,static,1,/rates-charts/chart-interactive
+/rates-charts/rates,static,1,/rates-charts/rates

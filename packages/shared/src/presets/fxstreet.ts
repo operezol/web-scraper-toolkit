@@ -5,7 +5,8 @@ import type { DetectionConfig } from "../detection.js";
  * FXStreet-specific preset (layer B): article path rules + stack detection.
  *
  * Goal: crawl surface/landings for locale planning without enumerating every
- * CMS slug (news, education, company, brokers/best/*, calendar events, …).
+ * CMS slug (news, education, company, calendar events, …).
+ * Broker *profiles* (`/brokers/fxpro`) stay in — they are product pages, not posts.
  */
 export const FXSTREET_ARTICLE_RULES: ArticlePathRule[] = [
   {
@@ -39,12 +40,7 @@ export const FXSTREET_ARTICLE_RULES: ArticlePathRule[] = [
     match: "slug-after-section",
     allowSegments: ["chart", "chart-interactive", "forecast", "indicators", "rates"],
   },
-  {
-    section: "brokers",
-    match: "slug-after-section",
-    allowSegments: ["best", "reviews", "cashback", "prop"],
-  },
-  // Nested detail pages (hubs above stay crawlable)
+  // Nested detail pages (hubs + /brokers/{slug} profiles stay crawlable)
   {
     section: "nested",
     match: "path-regex",
@@ -63,7 +59,8 @@ export const FXSTREET_ARTICLE_RULES: ArticlePathRule[] = [
   {
     section: "nested",
     match: "path-regex",
-    pattern: "^/(economic-calendar|calendario-economico)/event/[^/]+",
+    pattern:
+      "^/(economic-calendar|calendario-economico|calendrier-economique|wirtschaftskalender)/event/[^/]+",
   },
   {
     section: "nested",
@@ -80,6 +77,12 @@ export const FXSTREET_ARTICLE_RULES: ArticlePathRule[] = [
     section: "nested",
     match: "path-regex",
     pattern: "^/[^/]+-20\\d{10}$",
+  },
+  // Nested dated posts under any first segment (IT/FR/DE news slugs, etc.)
+  {
+    section: "nested",
+    match: "path-regex",
+    pattern: "^/[^/]+/.+-20\\d{10}$",
   },
 ];
 
@@ -116,3 +119,100 @@ export const FXSTREET_DETECTION: DetectionConfig = {
 
 export const FXSTREET_ES_HOSTS = ["www.fxstreet.es", "fxstreet.es"];
 export const FXSTREET_ES_START_URL = "https://www.fxstreet.es/";
+
+/**
+ * Canonical Next/legacy hubs. Seeded on every locale crawl so JS-only nav
+ * (IT/FR/PT home) still gets an HTTP inventory.
+ */
+export const FXSTREET_INVENTORY_SEED_PATHS: readonly string[] = [
+  "/",
+  "/news",
+  "/analysis",
+  "/analysis/latest",
+  "/education",
+  "/education/latest",
+  "/cryptocurrencies",
+  "/cryptocurrencies/news",
+  "/cryptocurrencies/industry-news",
+  "/brokers",
+  "/brokers/best",
+  "/brokers/reviews",
+  "/rates-charts",
+  "/rates-charts/chart",
+  "/rates-charts/forecast",
+  "/rates-charts/indicators",
+  "/rates-charts/rates",
+  "/economic-calendar",
+  "/economic-calendar/world-interest-rates",
+  "/economic-calendar/forex-market-hours",
+  "/calendario-economico",
+  "/commodities",
+  "/equities",
+  "/press-releases",
+  "/bonds",
+  "/live-video",
+  "/rss",
+  "/search",
+  "/subscriptions",
+  "/transparency-translations",
+  "/info/about-us",
+  "/info/contact-us",
+  "/info/terms-conditions",
+  "/info/privacy-policy",
+  "/info/cookie-policy",
+  "/info/ethical-code",
+  "/info/editorial-guidelines",
+  "/info/corporate-identity",
+  "/info/prevention",
+  "/info/premium",
+  "/info/advertising-model",
+  "/markets/commodities",
+  "/markets/equities",
+];
+
+export interface FxstreetLocaleOrigin {
+  locale: string;
+  name: string;
+  startUrl: string;
+}
+
+/** Production legacy origins from Site language switcher. */
+export const FXSTREET_LOCALE_ORIGINS: readonly FxstreetLocaleOrigin[] = [
+  { locale: "en", name: "English", startUrl: "https://www.fxstreet.com/" },
+  { locale: "es", name: "Español", startUrl: "https://www.fxstreet.es/" },
+  { locale: "it", name: "Italiano", startUrl: "https://www.fxstreet.it/" },
+  { locale: "fr", name: "Français", startUrl: "https://www.fxstreet.fr/" },
+  { locale: "de", name: "Deutsch", startUrl: "https://www.fxstreet.de.com/" },
+  { locale: "pt", name: "Português", startUrl: "https://pt.fxstreet.com/" },
+  { locale: "id", name: "Bahasa Indonesia", startUrl: "https://www.fxstreet-id.com/" },
+  { locale: "ar", name: "العربية", startUrl: "https://ar.fxstreet.com/" },
+  { locale: "vi", name: "Tiếng Việt", startUrl: "https://www.fxstreet-vn.com/" },
+  { locale: "zh", name: "繁體中文", startUrl: "https://www.fxstreet.hk/" },
+  { locale: "ru", name: "Русский", startUrl: "https://www.fxstreet.ru.com/" },
+  { locale: "tr", name: "Türkçe", startUrl: "https://www.fxstreet.com.tr/" },
+  { locale: "hu", name: "Magyar", startUrl: "https://www.fxstreet.hu/" },
+  { locale: "ja", name: "日本語", startUrl: "https://www.fxstreet.jp/" },
+];
+
+export function getFxstreetLocaleOrigin(locale: string): FxstreetLocaleOrigin {
+  const found = FXSTREET_LOCALE_ORIGINS.find((o) => o.locale === locale);
+  if (!found) {
+    const known = FXSTREET_LOCALE_ORIGINS.map((o) => o.locale).join(", ");
+    throw new Error(`Unknown FXStreet locale "${locale}". Known: ${known}`);
+  }
+  return found;
+}
+
+/**
+ * www + apex for a start URL. `pt.fxstreet.com` also allows `www.pt.fxstreet.com`.
+ */
+export function allowedHostsFromStartUrl(startUrl: string): string[] {
+  const host = new URL(startUrl).hostname.toLowerCase();
+  const hosts = new Set<string>([host]);
+  if (host.startsWith("www.")) {
+    hosts.add(host.slice(4));
+  } else {
+    hosts.add(`www.${host}`);
+  }
+  return [...hosts];
+}

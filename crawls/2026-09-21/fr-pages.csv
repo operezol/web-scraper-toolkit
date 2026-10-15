@@ -1,0 +1,17 @@
+normalized_path,environment,http_status,found_on,url
+/,sitefinity,200,,https://www.fxstreet.fr/
+/broker1,sitefinity,200,(sitemap),https://www.fxstreet.fr/broker1
+/brokers,sitefinity,200,(sitemap),https://www.fxstreet.fr/brokers
+/brokers/fxpro,sitefinity,200,/brokers,https://www.fxstreet.fr/brokers/fxpro
+/economic-calendar,sitefinity,200,(sitemap),https://www.fxstreet.fr/economic-calendar
+/info/contac-us,sitefinity,200,/info/contact-us,https://www.fxstreet.fr/info/contac-us
+/info/contact-us,sitefinity,200,(sitemap),https://www.fxstreet.fr/info/contact-us
+/info/gdpr-cookies,sitefinity,200,(sitemap),https://www.fxstreet.fr/info/gdpr-cookies
+/info/products/economic-calendar,sitefinity,200,(sitemap),https://www.fxstreet.fr/info/products/economic-calendar
+/info/terms-and-conditions,sitefinity,200,/info/terms-conditions,https://www.fxstreet.fr/info/terms-and-conditions
+/info/terms-conditions,sitefinity,200,(sitemap),https://www.fxstreet.fr/info/terms-conditions
+/news,sitefinity,200,(sitemap),https://www.fxstreet.fr/news
+/rates-charts,sitefinity,200,(sitemap),https://www.fxstreet.fr/rates-charts
+/rates-charts/chart,sitefinity,200,(sitemap),https://www.fxstreet.fr/rates-charts/chart
+/rates-charts/chart-interactive,sitefinity,200,(sitemap),https://www.fxstreet.fr/rates-charts/chart-interactive
+/rates-charts/rates,sitefinity,200,(sitemap),https://www.fxstreet.fr/rates-charts/rates

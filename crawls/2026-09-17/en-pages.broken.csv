@@ -1,0 +1,7 @@
+normalized_path,http_status,found_on,url
+/brokers/cashback,200,/info/contact-us,https://www.fxstreet.com/brokers/cashback
+/cdn-cgi/l/email-protection,404,/info/advertising-model,https://www.fxstreet.com/cdn-cgi/l/email-protection
+/info/advertising-and-sponsorship,200,/,https://www.fxstreet.com/info/advertising-and-sponsorship
+/rates-charts/rates/crosses/gbp,404,/bonds,https://www.fxstreet.com/rates-charts/rates/crosses/gbp
+/rates-charts/rates/indices,404,/bonds,https://www.fxstreet.com/rates-charts/rates/indices
+/sitemap-all.xml,404,/,https://www.fxstreet.com/sitemap-all.xml

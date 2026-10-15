@@ -1,0 +1,8 @@
+normalized_path,http_status,found_on,url,note
+/cryptocurrencies/rates-charts/indicators,404,/cryptocurrencies/rates-charts,https://www.fxstreet.de.com/cryptocurrencies/rates-charts/indicators,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/cryptocurrencies/rates-charts/rates,404,/cryptocurrencies/rates-charts,https://www.fxstreet.de.com/cryptocurrencies/rates-charts/rates,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/advertising-and-sponsorship,0,/,https://www.fxstreet.de.com/info/advertising-and-sponsorship,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/jobs,404,/,https://www.fxstreet.de.com/info/jobs,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/premium,404,/,https://www.fxstreet.de.com/info/premium,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/premium-terms-and-conditions,404,/info/terms-conditions,https://www.fxstreet.de.com/info/premium-terms-and-conditions,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/technical-analysis/sentiment,404,/bonds,https://www.fxstreet.de.com/technical-analysis/sentiment,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD

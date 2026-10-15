@@ -1,0 +1,5 @@
+normalized_path,http_status,found_on,url,note
+/info/advertising-and-sponsorship,0,/,https://www.fxstreet-id.com/info/advertising-and-sponsorship,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/jobs,404,/,https://www.fxstreet-id.com/info/jobs,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/premium,404,/,https://www.fxstreet-id.com/info/premium,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/premium-terms-and-conditions,404,/info/terms-conditions,https://www.fxstreet-id.com/info/premium-terms-and-conditions,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD

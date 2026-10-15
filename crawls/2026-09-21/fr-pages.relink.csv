@@ -1,0 +1,6 @@
+normalized_path,http_status,found_on,url,note
+/info/about-us,404,/,https://www.fxstreet.fr/info/about-us,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/corporate-identity,404,/,https://www.fxstreet.fr/info/corporate-identity,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/editorial-guidelines,404,/,https://www.fxstreet.fr/info/editorial-guidelines,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/ethical-code,404,/,https://www.fxstreet.fr/info/ethical-code,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/jobs,404,/,https://www.fxstreet.fr/info/jobs,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD

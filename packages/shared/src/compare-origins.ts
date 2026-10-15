@@ -36,7 +36,7 @@ export function processedPathKey(path: string): string {
     return path.replace("/economic-calendar", "/calendario-economico");
   }
   const parts = path.split("/").filter(Boolean);
-  if (parts.length === 1 && /broker/i.test(parts[0]!)) {
+  if (parts.length === 1 && parts[0] !== "brokers" && /broker/i.test(parts[0]!)) {
     return `/brokers/best/${parts[0]}`;
   }
   return path;

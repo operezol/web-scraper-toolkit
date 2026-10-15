@@ -1,0 +1,12 @@
+normalized_path,http_status,found_on,url,note
+/economic-calendar/country/e137f7ff-5990-4e7e-89c1-9976744a6628,404,/markets/commodities,https://www.fxstreet.hk/economic-calendar/country/e137f7ff-5990-4e7e-89c1-9976744a6628,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/economic-calendar/country/f0b72088-34bb-4752-9337-c41f329c7798,404,/markets/commodities,https://www.fxstreet.hk/economic-calendar/country/f0b72088-34bb-4752-9337-c41f329c7798,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/advertising-and-sponsorship,0,/,https://www.fxstreet.hk/info/advertising-and-sponsorship,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/forex-dvds/pivot-point-swing-trading,410,/technical-analysis/support-resistance/pivot-points,https://www.fxstreet.hk/info/forex-dvds/pivot-point-swing-trading,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/jobs,404,/,https://www.fxstreet.hk/info/jobs,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/premium,404,/,https://www.fxstreet.hk/info/premium,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/info/premium-terms-and-conditions,404,/info/terms-conditions,https://www.fxstreet.hk/info/premium-terms-and-conditions,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/rates-charts/chart/candlestick-patterns,404,/rates-charts/chart,https://www.fxstreet.hk/rates-charts/chart/candlestick-patterns,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/rates-charts/rates/indices,404,/bonds,https://www.fxstreet.hk/rates-charts/rates/indices,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/technical-analysis/sentiment,404,/bonds,https://www.fxstreet.hk/technical-analysis/sentiment,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD
+/technical-analysis/sentiment/risk-appetite,404,/bonds,https://www.fxstreet.hk/technical-analysis/sentiment/risk-appetite,enlace heredado a EN; traducir claves y apuntar al mismo path en este TLD

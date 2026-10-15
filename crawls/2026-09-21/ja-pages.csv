@@ -1,0 +1,15 @@
+normalized_path,environment,http_status,found_on,url
+/,sitefinity,200,,https://www.fxstreet.jp/
+/broker1,sitefinity,200,(sitemap),https://www.fxstreet.jp/broker1
+/brokers,sitefinity,200,(sitemap),https://www.fxstreet.jp/brokers
+/brokers/fxpro,sitefinity,200,/brokers,https://www.fxstreet.jp/brokers/fxpro
+/economic-calendar,sitefinity,200,(sitemap),https://www.fxstreet.jp/economic-calendar
+/info/contact-us,sitefinity,200,(sitemap),https://www.fxstreet.jp/info/contact-us
+/info/gdpr-cookies,sitefinity,200,(sitemap),https://www.fxstreet.jp/info/gdpr-cookies
+/info/terms-and-conditions,sitefinity,200,/info/terms-conditions,https://www.fxstreet.jp/info/terms-and-conditions
+/info/terms-conditions,sitefinity,200,(sitemap),https://www.fxstreet.jp/info/terms-conditions
+/news,sitefinity,200,(sitemap),https://www.fxstreet.jp/news
+/rates-charts,sitefinity,200,(sitemap),https://www.fxstreet.jp/rates-charts
+/rates-charts/chart,sitefinity,200,(sitemap),https://www.fxstreet.jp/rates-charts/chart
+/rates-charts/chart-interactive,sitefinity,200,(sitemap),https://www.fxstreet.jp/rates-charts/chart-interactive
+/rates-charts/rates,sitefinity,200,(sitemap),https://www.fxstreet.jp/rates-charts/rates

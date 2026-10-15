@@ -76,7 +76,7 @@ describe("FXStreet article rules", () => {
     expect(isArticlePath("/brokers/best/accounts", FXSTREET_ARTICLE_RULES)).toBe(
       true,
     );
-    expect(isArticlePath("/brokers/fxpro", FXSTREET_ARTICLE_RULES)).toBe(true);
+    expect(isArticlePath("/brokers/fxpro", FXSTREET_ARTICLE_RULES)).toBe(false);
     expect(isArticlePath("/rates-charts", FXSTREET_ARTICLE_RULES)).toBe(false);
     expect(isArticlePath("/rates-charts/chart", FXSTREET_ARTICLE_RULES)).toBe(
       false,
@@ -90,6 +90,11 @@ describe("FXStreet article rules", () => {
     expect(isArticlePath("/calendario-economico", FXSTREET_ARTICLE_RULES)).toBe(
       false,
     );
+    expect(
+      isArticlePath("/notizie/foo-bar-202603240930", FXSTREET_ARTICLE_RULES),
+    ).toBe(true);
+    expect(isArticlePath("/notizie", FXSTREET_ARTICLE_RULES)).toBe(false);
+    expect(isArticlePath("/notizie/latest", FXSTREET_ARTICLE_RULES)).toBe(false);
   });
 });
 

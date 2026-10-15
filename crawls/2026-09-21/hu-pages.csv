@@ -1,0 +1,11 @@
+normalized_path,environment,http_status,found_on,url
+/,sitefinity,200,,https://www.fxstreet.hu/
+/brokers,sitefinity,200,/,https://www.fxstreet.hu/brokers
+/brokers/fxpro,sitefinity,200,/brokers,https://www.fxstreet.hu/brokers/fxpro
+/economic-calendar,sitefinity,200,/,https://www.fxstreet.hu/economic-calendar
+/info/contact-us,sitefinity,200,/,https://www.fxstreet.hu/info/contact-us
+/info/terms-and-conditions,sitefinity,200,/info/terms-conditions,https://www.fxstreet.hu/info/terms-and-conditions
+/info/terms-conditions,sitefinity,200,/,https://www.fxstreet.hu/info/terms-conditions
+/rates-charts,sitefinity,200,/,https://www.fxstreet.hu/rates-charts
+/rates-charts/chart,sitefinity,200,/,https://www.fxstreet.hu/rates-charts/chart
+/rates-charts/rates,sitefinity,200,/,https://www.fxstreet.hu/rates-charts/rates

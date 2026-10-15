@@ -1,0 +1,12 @@
+normalized_path,environment,http_status,found_on,url
+/,sitefinity,200,,https://pt.fxstreet.com/
+/brokers,sitefinity,200,/,https://pt.fxstreet.com/brokers
+/brokers/fxpro,sitefinity,200,/brokers,https://pt.fxstreet.com/brokers/fxpro
+/economic-calendar,sitefinity,200,/,https://pt.fxstreet.com/economic-calendar
+/info/contact-us,sitefinity,200,/,https://pt.fxstreet.com/info/contact-us
+/info/terms-conditions,sitefinity,200,/,https://pt.fxstreet.com/info/terms-conditions
+/rates-charts,sitefinity,200,/,https://pt.fxstreet.com/rates-charts
+/rates-charts/chart,sitefinity,200,/,https://pt.fxstreet.com/rates-charts/chart
+/rates-charts/chart-interactive,sitefinity,200,/rates-charts,https://pt.fxstreet.com/rates-charts/chart-interactive
+/rates-charts/rates,sitefinity,200,/,https://pt.fxstreet.com/rates-charts/rates
+/rates-Charts/rates,sitefinity,200,/,https://pt.fxstreet.com/rates-Charts/rates

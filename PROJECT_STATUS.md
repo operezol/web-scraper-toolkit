@@ -16,7 +16,7 @@ Monorepo (pnpm): TypeScript, React/Vite/Tailwind (web), Express (API), Commander
 |-------|----------|
 | **scraper-shared** | `WebScraper` (scrape / batch), `link-extract`, `crawlInternalLinks`, `env-detect` (Next/Sitefinity hardcode), `dual-origin-crawl`, `fxstreet-es-crawl`. Axios + Cheerio. |
 | **scraper-api** | Express :3000 — `GET /health`, `POST /scrape`, `POST /scrape/multiple` |
-| **scraper-cli** | `scrape`, `batch`, `links`, `crawl`, `fxstreet-es`, `fxstreet-dual` |
+| **scraper-cli** | `scrape`, `batch`, `links`, `crawl`, `fxstreet-es`, `fxstreet-locale`, `fxstreet-batch`, `compare-crawls`, `fxstreet-dual` |
 | **scraper-web** | Dashboard React + Zustand; proxy API en dev |
 
 Uso y ejemplos de comandos: [README.md](README.md).
@@ -26,7 +26,11 @@ Uso y ejemplos de comandos: [README.md](README.md).
 | Comando | Comportamiento |
 |---------|----------------|
 | `fxstreet-dual` | Crawl www + qa `fxstreet.com`; detecta Next/Sitefinity; CSV merge por path |
-| `fxstreet-es` | Wrapper sobre `crawlSite` + preset; CSV accesibles `normalized_path,environment,http_status,found_on,url` + sidecar `*.broken.csv` |
+| `fxstreet-es` | Wrapper sobre `crawlFxstreetSite`; solo hosts `.es` |
+| `fxstreet-locale` | Inventario 2xx de cualquier TLD (`--locale` / `--url`); hosts derivados |
+| `fxstreet-batch` | Varios locales en serie + compare offline vs EN. Semillas `{tld}/sitemap.xml` + Chromium para menús React. `--with-keys` emite CSV de i18n por locale |
+| `fxstreet-translation-keys` | Inventario 2xx + Site i18n → `{locale}-keys.csv`; descarta 404 / EN-only / páginas que no van |
+| `compare-crawls` | Merge offline locale vs EN (aliases conocidos + colas compartidas) |
 | `compare-origins` | Dos crawls (legacy vs processed) + merge por path y aliases ES |
 
 **Análisis CSV ES (7264 URLs, 2026-09-03):** bajo `news` / `analysis`, conservar landings + `feed`/`latest`; el resto son slugs de artículo (~3000 news). ~3150 URLs con query (casi todas `/account/login?...`) → strip query. Preset: `FXSTREET_ARTICLE_RULES` + `FXSTREET_DETECTION`.

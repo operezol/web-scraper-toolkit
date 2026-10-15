@@ -1,0 +1,84 @@
+path_key,match_type,path_en,path_locale,http_en,http_locale,env_en,env_locale,found_on_en,found_on_locale,url_en,url_locale,alias_family,notes
+/,same-path,/,/,200,200,next,sitefinity,,,https://www.fxstreet.com/,https://www.fxstreet.de.com/,,
+/account/login,en-only,/account/login,,200,,next,,/info/premium,,https://www.fxstreet.com/account/login,,,"accessible on EN, not in locale crawl"
+/analysis,same-path,/analysis,/analysis,200,200,next,sitefinity,/,/,https://www.fxstreet.com/analysis,https://www.fxstreet.de.com/analysis,,
+/analysis/latest,same-path,/analysis/latest,/analysis/latest,200,200,next,sitefinity,/,/,https://www.fxstreet.com/analysis/latest,https://www.fxstreet.de.com/analysis/latest,,
+/bonds,same-path,/bonds,/bonds,200,200,sitefinity,sitefinity,/commodities,/,https://www.fxstreet.com/bonds,https://www.fxstreet.de.com/bonds,,
+/brokers,same-path,/brokers,/brokers,200,200,next,sitefinity,/,/,https://www.fxstreet.com/brokers,https://www.fxstreet.de.com/brokers,,
+/brokers/best,en-only,/brokers/best,,200,,next,,/,,https://www.fxstreet.com/brokers/best,,,"accessible on EN, not in locale crawl"
+/brokers/cashback,neither-accessible,/brokers/cashback,,200,,,,/info/contact-us,,https://www.fxstreet.com/brokers/cashback,,,en linked but HTTP 200 from /info/contact-us
+/brokers/cxm,en-only,/brokers/cxm,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/cxm,,,"accessible on EN, not in locale crawl"
+/brokers/deriv,en-only,/brokers/deriv,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/deriv,,,"accessible on EN, not in locale crawl"
+/brokers/ebc-financial-group,en-only,/brokers/ebc-financial-group,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/ebc-financial-group,,,"accessible on EN, not in locale crawl"
+/brokers/fp-trading,en-only,/brokers/fp-trading,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/fp-trading,,,"accessible on EN, not in locale crawl"
+/brokers/fxpro,same-path,/brokers/fxpro,/brokers/fxpro,200,200,next,sitefinity,/brokers,/brokers,https://www.fxstreet.com/brokers/fxpro,https://www.fxstreet.de.com/brokers/fxpro,,
+/brokers/go-markets,en-only,/brokers/go-markets,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/go-markets,,,"accessible on EN, not in locale crawl"
+/brokers/hantec-markets,en-only,/brokers/hantec-markets,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/hantec-markets,,,"accessible on EN, not in locale crawl"
+/brokers/lhfx,en-only,/brokers/lhfx,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/lhfx,,,"accessible on EN, not in locale crawl"
+/brokers/libertex,locale-only,,/brokers/libertex,,200,,sitefinity,,/brokers,,https://www.fxstreet.de.com/brokers/libertex,,"accessible on locale, not in EN crawl"
+/brokers/monetamarkets,en-only,/brokers/monetamarkets,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/monetamarkets,,,"accessible on EN, not in locale crawl"
+/brokers/pepperstone,en-only,/brokers/pepperstone,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/pepperstone,,,"accessible on EN, not in locale crawl"
+/brokers/pu-prime,en-only,/brokers/pu-prime,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/pu-prime,,,"accessible on EN, not in locale crawl"
+/brokers/reviews,en-only,/brokers/reviews,,200,,next,,/,,https://www.fxstreet.com/brokers/reviews,,,"accessible on EN, not in locale crawl"
+/brokers/spec-fx-capital-ltd,en-only,/brokers/spec-fx-capital-ltd,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/spec-fx-capital-ltd,,,"accessible on EN, not in locale crawl"
+/brokers/tickmill,en-only,/brokers/tickmill,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/tickmill,,,"accessible on EN, not in locale crawl"
+/brokers/tradingpro,en-only,/brokers/tradingpro,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/tradingpro,,,"accessible on EN, not in locale crawl"
+/brokers/vtmarkets,en-only,/brokers/vtmarkets,,200,,next,,/brokers,,https://www.fxstreet.com/brokers/vtmarkets,,,"accessible on EN, not in locale crawl"
+/cdn-cgi/l/email-protection,neither-accessible,/cdn-cgi/l/email-protection,/cdn-cgi/l/email-protection,404,404,,,/info/advertising-model,/info/prevention,https://www.fxstreet.com/cdn-cgi/l/email-protection,https://www.fxstreet.de.com/cdn-cgi/l/email-protection,,locale linked but HTTP 404 from /info/prevention; en linked but HTTP 404 from /info/advertising-model
+/commodities,en-only,/commodities,,200,,next,,/,,https://www.fxstreet.com/commodities,,,"accessible on EN, not in locale crawl"
+/cryptocurrencies,same-path,/cryptocurrencies,/cryptocurrencies,200,200,next,sitefinity,/,/,https://www.fxstreet.com/cryptocurrencies,https://www.fxstreet.de.com/cryptocurrencies,,
+/cryptocurrencies/industry-news,en-only,/cryptocurrencies/industry-news,,200,,next,,/,,https://www.fxstreet.com/cryptocurrencies/industry-news,,,"accessible on EN, not in locale crawl"
+/cryptocurrencies/news,same-path,/cryptocurrencies/news,/cryptocurrencies/news,200,200,next,sitefinity,/,/,https://www.fxstreet.com/cryptocurrencies/news,https://www.fxstreet.de.com/cryptocurrencies/news,,
+/economic-calendar,same-path,/economic-calendar,/economic-calendar,200,200,next,sitefinity,/,/,https://www.fxstreet.com/economic-calendar,https://www.fxstreet.de.com/economic-calendar,,
+/economic-calendar/australia,en-only,/economic-calendar/australia,,200,,next,,/economic-calendar,,https://www.fxstreet.com/economic-calendar/australia,,,"accessible on EN, not in locale crawl"
+/economic-calendar/canada,en-only,/economic-calendar/canada,,200,,next,,/economic-calendar,,https://www.fxstreet.com/economic-calendar/canada,,,"accessible on EN, not in locale crawl"
+/economic-calendar/country/89d5f89c-a5d5-40cc-8690-9725de83504d,neither-accessible,,/economic-calendar/country/89d5f89c-a5d5-40cc-8690-9725de83504d,,404,,,,/markets/commodities,,https://www.fxstreet.de.com/economic-calendar/country/89d5f89c-a5d5-40cc-8690-9725de83504d,,locale linked but HTTP 404 from /markets/commodities
+/economic-calendar/country/e137f7ff-5990-4e7e-89c1-9976744a6628,neither-accessible,,/economic-calendar/country/e137f7ff-5990-4e7e-89c1-9976744a6628,,404,,,,/markets/commodities,,https://www.fxstreet.de.com/economic-calendar/country/e137f7ff-5990-4e7e-89c1-9976744a6628,,locale linked but HTTP 404 from /markets/commodities
+/economic-calendar/country/f0b72088-34bb-4752-9337-c41f329c7798,neither-accessible,,/economic-calendar/country/f0b72088-34bb-4752-9337-c41f329c7798,,404,,,,/markets/commodities,,https://www.fxstreet.de.com/economic-calendar/country/f0b72088-34bb-4752-9337-c41f329c7798,,locale linked but HTTP 404 from /markets/commodities
+/economic-calendar/fed-sentiment-index,en-only,/economic-calendar/fed-sentiment-index,,200,,next,,/,,https://www.fxstreet.com/economic-calendar/fed-sentiment-index,,,"accessible on EN, not in locale crawl"
+/economic-calendar/forex-market-hours,same-path,/economic-calendar/forex-market-hours,/economic-calendar/forex-market-hours,200,200,next,sitefinity,/,/,https://www.fxstreet.com/economic-calendar/forex-market-hours,https://www.fxstreet.de.com/economic-calendar/forex-market-hours,,
+/economic-calendar/united-kingdom,en-only,/economic-calendar/united-kingdom,,200,,next,,/economic-calendar,,https://www.fxstreet.com/economic-calendar/united-kingdom,,,"accessible on EN, not in locale crawl"
+/economic-calendar/united-states,en-only,/economic-calendar/united-states,,200,,next,,/economic-calendar,,https://www.fxstreet.com/economic-calendar/united-states,,,"accessible on EN, not in locale crawl"
+/economic-calendar/world-interest-rates,same-path,/economic-calendar/world-interest-rates,/economic-calendar/world-interest-rates,200,200,next,sitefinity,/,/,https://www.fxstreet.com/economic-calendar/world-interest-rates,https://www.fxstreet.de.com/economic-calendar/world-interest-rates,,
+/education,en-only,/education,,200,,next,,/,,https://www.fxstreet.com/education,,,"accessible on EN, not in locale crawl"
+/equities,en-only,/equities,,200,,next,,/,,https://www.fxstreet.com/equities,,,"accessible on EN, not in locale crawl"
+/info/about-us,same-path,/info/about-us,/info/about-us,200,200,next,sitefinity,/,/,https://www.fxstreet.com/info/about-us,https://www.fxstreet.de.com/info/about-us,,
+/info/advertising-and-sponsorship,neither-accessible,/info/advertising-and-sponsorship,,200,,,,/,,https://www.fxstreet.com/info/advertising-and-sponsorship,,,en linked but HTTP 200 from /
+/info/advertising-model,en-only,/info/advertising-model,,200,,next,,/,,https://www.fxstreet.com/info/advertising-model,,,"accessible on EN, not in locale crawl"
+/info/contact-us,same-path,/info/contact-us,/info/contact-us,200,200,sitefinity,sitefinity,/,/,https://www.fxstreet.com/info/contact-us,https://www.fxstreet.de.com/info/contact-us,,
+/info/cookie-policy,en-only,/info/cookie-policy,,200,,next,,/,,https://www.fxstreet.com/info/cookie-policy,,,"accessible on EN, not in locale crawl"
+/info/corporate-identity,same-path,/info/corporate-identity,/info/corporate-identity,200,200,sitefinity,sitefinity,/,/,https://www.fxstreet.com/info/corporate-identity,https://www.fxstreet.de.com/info/corporate-identity,,
+/info/editorial-guidelines,same-path,/info/editorial-guidelines,/info/editorial-guidelines,200,200,next,sitefinity,/,/,https://www.fxstreet.com/info/editorial-guidelines,https://www.fxstreet.de.com/info/editorial-guidelines,,
+/info/ethical-code,same-path,/info/ethical-code,/info/ethical-code,200,200,next,sitefinity,/,/,https://www.fxstreet.com/info/ethical-code,https://www.fxstreet.de.com/info/ethical-code,,
+/info/how-fxstreet-uses-ai,en-only,/info/how-fxstreet-uses-ai,,200,,next,,/,,https://www.fxstreet.com/info/how-fxstreet-uses-ai,,,"accessible on EN, not in locale crawl"
+/info/how-we-score-reviews,en-only,/info/how-we-score-reviews,,200,,next,,/,,https://www.fxstreet.com/info/how-we-score-reviews,,,"accessible on EN, not in locale crawl"
+/info/jobs,en-only,/info/jobs,,200,,sitefinity,,/info/about-us,,https://www.fxstreet.com/info/jobs,,,"accessible on EN, not in locale crawl"
+/info/jobs/job-spontaeous-application,en-only,/info/jobs/job-spontaeous-application,,200,,sitefinity,,/info/jobs,,https://www.fxstreet.com/info/jobs/job-spontaeous-application,,,"accessible on EN, not in locale crawl"
+/info/premium,en-only,/info/premium,,200,,next,,/info/premium-terms-and-conditions,,https://www.fxstreet.com/info/premium,,,"accessible on EN, not in locale crawl"
+/info/premium-terms-and-conditions,en-only,/info/premium-terms-and-conditions,,200,,next,,/info/terms-conditions,,https://www.fxstreet.com/info/premium-terms-and-conditions,,,"accessible on EN, not in locale crawl"
+/info/prevention,same-path,/info/prevention,/info/prevention,200,200,next,sitefinity,/,/,https://www.fxstreet.com/info/prevention,https://www.fxstreet.de.com/info/prevention,,
+/info/privacy-policy,en-only,/info/privacy-policy,,200,,next,,/,,https://www.fxstreet.com/info/privacy-policy,,,"accessible on EN, not in locale crawl"
+/info/sitemap,neither-accessible,,/info/sitemap,,404,,,,/,,https://www.fxstreet.de.com/info/sitemap,,locale linked but HTTP 404 from /
+/info/terms-conditions,same-path,/info/terms-conditions,/info/terms-conditions,200,200,next,sitefinity,/,/,https://www.fxstreet.com/info/terms-conditions,https://www.fxstreet.de.com/info/terms-conditions,,
+/markets/commodities,locale-only,,/markets/commodities,,200,,sitefinity,,/,,https://www.fxstreet.de.com/markets/commodities,,"accessible on locale, not in EN crawl"
+/markets/equities,locale-only,,/markets/equities,,200,,sitefinity,,/,,https://www.fxstreet.de.com/markets/equities,,"accessible on locale, not in EN crawl"
+/news,same-path,/news,/news,200,200,next,sitefinity,/,/,https://www.fxstreet.com/news,https://www.fxstreet.de.com/news,,
+/press-releases,same-path,/press-releases,/press-releases,200,200,next,sitefinity,/,/,https://www.fxstreet.com/press-releases,https://www.fxstreet.de.com/press-releases,,
+/rates-charts,same-path,/rates-charts,/rates-charts,200,200,next,sitefinity,/,/,https://www.fxstreet.com/rates-charts,https://www.fxstreet.de.com/rates-charts,,
+/rates-charts/chart,same-path,/rates-charts/chart,/rates-charts/chart,200,200,next,sitefinity,/,/,https://www.fxstreet.com/rates-charts/chart,https://www.fxstreet.de.com/rates-charts/chart,,
+/rates-charts/chart-interactive,same-path,/rates-charts/chart-interactive,/rates-charts/chart-interactive,200,200,next,sitefinity,/rates-charts,/analysis/latest,https://www.fxstreet.com/rates-charts/chart-interactive,https://www.fxstreet.de.com/rates-charts/chart-interactive,,
+/rates-charts/chart/station,locale-only,,/rates-charts/chart/station,,200,,sitefinity,,/rates-charts/chart,,https://www.fxstreet.de.com/rates-charts/chart/station,,"accessible on locale, not in EN crawl"
+/rates-charts/forecast,same-path,/rates-charts/forecast,/rates-charts/forecast,200,200,next,sitefinity,/,/,https://www.fxstreet.com/rates-charts/forecast,https://www.fxstreet.de.com/rates-charts/forecast,,
+/rates-charts/indicators,same-path,/rates-charts/indicators,/rates-charts/indicators,200,200,next,sitefinity,/,/,https://www.fxstreet.com/rates-charts/indicators,https://www.fxstreet.de.com/rates-charts/indicators,,
+/rates-charts/indicators/technical-levels,locale-only,,/rates-charts/indicators/technical-levels,,200,,sitefinity,,/,,https://www.fxstreet.de.com/rates-charts/indicators/technical-levels,,"accessible on locale, not in EN crawl"
+/rates-charts/rates,same-path,/rates-charts/rates,/rates-charts/rates,200,200,next,sitefinity,/,/,https://www.fxstreet.com/rates-charts/rates,https://www.fxstreet.de.com/rates-charts/rates,,
+/rates-charts/rates/crosses/gbp,locale-only,/rates-charts/rates/crosses/gbp,/rates-charts/rates/crosses/gbp,404,200,,sitefinity,/bonds,/bonds,https://www.fxstreet.com/rates-charts/rates/crosses/gbp,https://www.fxstreet.de.com/rates-charts/rates/crosses/gbp,,"en linked but HTTP 404 from /bonds; accessible on locale, not in EN crawl"
+/rates-charts/rates/historical,locale-only,,/rates-charts/rates/historical,,200,,sitefinity,,/technical-analysis/support-resistance/pivot-points,,https://www.fxstreet.de.com/rates-charts/rates/historical,,"accessible on locale, not in EN crawl"
+/rates-charts/rates/indices,neither-accessible,/rates-charts/rates/indices,,404,,,,/bonds,,https://www.fxstreet.com/rates-charts/rates/indices,,,en linked but HTTP 404 from /bonds
+/rss,en-only,/rss,,200,,unknown,,/,,https://www.fxstreet.com/rss,,,"accessible on EN, not in locale crawl"
+/sitemap-all.xml,neither-accessible,/sitemap-all.xml,,404,,,,/,,https://www.fxstreet.com/sitemap-all.xml,,,en linked but HTTP 404 from /
+/subscriptions,en-only,/subscriptions,,200,,next,,/,,https://www.fxstreet.com/subscriptions,,,"accessible on EN, not in locale crawl"
+/technical-analysis/sentiment/risk-appetite,neither-accessible,,/technical-analysis/sentiment/risk-appetite,,404,,,,/bonds,,https://www.fxstreet.de.com/technical-analysis/sentiment/risk-appetite,,locale linked but HTTP 404 from /bonds
+/technical-analysis/support-resistance/fibonacci,locale-only,,/technical-analysis/support-resistance/fibonacci,,200,,sitefinity,,/rates-charts/indicators,,https://www.fxstreet.de.com/technical-analysis/support-resistance/fibonacci,,"accessible on locale, not in EN crawl"
+/technical-analysis/support-resistance/pivot-points,locale-only,,/technical-analysis/support-resistance/pivot-points,,200,,sitefinity,,/rates-charts/indicators,,https://www.fxstreet.de.com/technical-analysis/support-resistance/pivot-points,,"accessible on locale, not in EN crawl"
+/transparency-translations,en-only,/transparency-translations,,200,,next,,/,,https://www.fxstreet.com/transparency-translations,,,"accessible on EN, not in locale crawl"

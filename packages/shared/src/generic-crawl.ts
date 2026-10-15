@@ -5,14 +5,17 @@ import type {
   CrawlBrokenLink,
   CrawlOptions,
   CrawlPage,
+  CrawlRelinkPath,
   CrawlResult,
 } from "./crawl-types.js";
 import { evaluateDetection } from "./detection.js";
-import { extractInternalLinksFromHtml } from "./link-extract.js";
+import { extractInternalLinksDetailed } from "./link-extract.js";
 import {
   normalizeCrawlUrl,
   normalizeInternalPath,
 } from "./url-normalize.js";
+import { RenderedCrawlSession } from "./browser-harvest.js";
+import { classifyFetchedPage } from "./not-found-page.js";
 
 const defaultHeaders = {
   "User-Agent":
@@ -22,6 +25,8 @@ const defaultHeaders = {
 interface QueueItem {
   url: string;
   foundOn: string;
+  /** Harvested from an EN-site href that we remapped to this locale origin. */
+  fromEnHref?: boolean;
 }
 
 function httpStatusFromError(error: unknown): number {
@@ -34,8 +39,11 @@ function httpStatusFromError(error: unknown): number {
 /**
  * Generic BFS internal-link crawl with optional filters, detection, checkpoint.
  *
- * The result list only contains URLs that responded 2xx. Linked-but-dead URLs
- * go to `broken` with the page they were found on (`foundOn`).
+ * Sitemap / BFS seeds are always visited. The result list only contains URLs
+ * that responded 2xx on this origin (not a 404 template, not a bounce to EN).
+ * EN-site hrefs on locale pages are remapped to the same path here, visited,
+ * and if they 404 or bounce back to EN they go to `relink` (translate + fix href)
+ * as well as `broken`. Links on a 404 / EN-bounce page are not followed.
  */
 export async function crawlSite(options: CrawlOptions): Promise<CrawlResult> {
   const {
@@ -51,6 +59,7 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlResult> {
     checkpointEvery,
     onCheckpoint,
     onProgress,
+    rewriteSourceHosts = [],
   } = options;
 
   const startHost = new URL(startUrl).hostname;
@@ -70,8 +79,35 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlResult> {
 
   const visited = new Set<string>();
   const queue: QueueItem[] = [{ url: seed, foundOn: "" }];
+  const queued = new Set<string>([seed]);
+  for (const extra of options.extraStartUrls ?? []) {
+    const extraUrl = typeof extra === "string" ? extra : extra.url;
+    const extraFoundOn =
+      typeof extra === "string" ? "(seed)" : (extra.foundOn ?? "(seed)");
+    let normalizedExtra: string;
+    try {
+      normalizedExtra = normalize(extraUrl);
+    } catch {
+      continue;
+    }
+    let extraHost: string;
+    try {
+      extraHost = new URL(normalizedExtra).hostname;
+    } catch {
+      continue;
+    }
+    if (!allowedHosts.has(extraHost)) continue;
+    if (shouldSkipPath(normalizeInternalPath(normalizedExtra))) continue;
+    if (queued.has(normalizedExtra)) continue;
+    queued.add(normalizedExtra);
+    queue.push({ url: normalizedExtra, foundOn: extraFoundOn });
+  }
   const pages: CrawlPage[] = [];
   const broken: CrawlBrokenLink[] = [];
+  const relink: CrawlRelinkPath[] = [];
+  const relinkSeen = new Set<string>();
+  const browser = options.useBrowser ? new RenderedCrawlSession() : undefined;
+  if (browser) await browser.start();
 
   const withinLimit = () =>
     maxPages === undefined || maxPages <= 0 || pages.length < maxPages;
@@ -83,8 +119,42 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlResult> {
       foundOn: item.foundOn,
       statusCode,
     });
+    if (item.fromEnHref && !relinkSeen.has(path)) {
+      relinkSeen.add(path);
+      relink.push({
+        normalizedPath: path,
+        url: item.url,
+        foundOn: item.foundOn,
+        statusCode,
+      });
+    }
   };
 
+  const enqueueLinks = (
+    links: Array<{ href: string; remappedFromEn?: boolean }>,
+    foundOn: string,
+  ) => {
+    for (const link of links) {
+      let n: string;
+      try {
+        n = normalize(link.href);
+      } catch {
+        continue;
+      }
+      if (!allowedHosts.has(new URL(n).hostname)) continue;
+      if (shouldSkipPath(normalizeInternalPath(n))) continue;
+      if (!visited.has(n) && !queued.has(n)) {
+        queued.add(n);
+        queue.push({
+          url: n,
+          foundOn,
+          fromEnHref: Boolean(link.remappedFromEn),
+        });
+      }
+    }
+  };
+
+  try {
   while (queue.length > 0 && withinLimit()) {
     const item = queue.shift()!;
     const currentUrl = item.url;
@@ -109,49 +179,63 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlResult> {
     });
 
     try {
-      const response = await axios.get<string>(currentUrl, {
-        headers: defaultHeaders,
-        timeout: timeoutMs,
-        responseType: "text",
-        validateStatus: (s) => s >= 200 && s < 300,
-      });
+      let html: string;
+      let statusCode: number;
+      let finalRaw: string;
+      let links: Array<{ href: string; remappedFromEn?: boolean }>;
 
-      const html = response.data;
-      const finalRaw = resolveFinalUrl(response, currentUrl);
+      if (browser) {
+        const rendered = await browser.fetch(currentUrl, {
+          timeoutMs,
+          allowedHosts: [...allowedHosts],
+          rewriteHostsToOrigin: rewriteSourceHosts,
+        });
+        html = rendered.html;
+        statusCode = rendered.statusCode;
+        finalRaw = rendered.finalUrl;
+        links = rendered.linksDetailed ?? rendered.links.map((href) => ({ href }));
+      } else {
+        const response = await axios.get<string>(currentUrl, {
+          headers: defaultHeaders,
+          timeout: timeoutMs,
+          responseType: "text",
+          validateStatus: (s) => s >= 200 && s < 300,
+        });
+        html = response.data;
+        statusCode = response.status;
+        finalRaw = resolveFinalUrl(response, currentUrl);
+        links = extractInternalLinksDetailed(html, currentUrl, {
+          allowedHosts: [...allowedHosts],
+          rewriteHostsToOrigin: rewriteSourceHosts,
+        });
+      }
+
+      const verdict = classifyFetchedPage(statusCode, html);
+      if (!verdict.ok) {
+        pushBroken(item, path, verdict.statusCode);
+        continue;
+      }
+      statusCode = verdict.statusCode;
+
       const finalUrl = normalize(finalRaw);
       if (finalUrl !== currentUrl) visited.add(finalUrl);
 
       const finalHost = new URL(finalUrl).hostname;
       if (!allowedHosts.has(finalHost)) {
-        pushBroken(item, path, response.status);
+        // Locale URL bounced to another TLD (usually EN). Not a locale page.
+        pushBroken(item, path, statusCode >= 300 && statusCode < 400 ? statusCode : 301);
+        continue;
       } else {
         const finalPath = normalizeInternalPath(finalUrl);
-        if (shouldSkipPath(finalPath)) {
-          // redirect landed on an excluded article — do not record
-        } else {
-          const page: CrawlPage = {
+        if (!shouldSkipPath(finalPath)) {
+          pages.push({
             url: finalUrl,
             normalizedPath: finalPath,
-            statusCode: response.status,
+            statusCode,
             foundOn: item.foundOn,
             label: detection ? evaluateDetection(html, detection) : undefined,
-          };
-          pages.push(page);
-
-          const links = extractInternalLinksFromHtml(html, finalUrl);
-          for (const link of links) {
-            let n: string;
-            try {
-              n = normalize(link);
-            } catch {
-              continue;
-            }
-            if (!allowedHosts.has(new URL(n).hostname)) continue;
-            if (shouldSkipPath(normalizeInternalPath(n))) continue;
-            if (!visited.has(n)) {
-              queue.push({ url: n, foundOn: finalPath });
-            }
-          }
+          });
+          enqueueLinks(links, finalPath);
         }
       }
     } catch (error) {
@@ -172,7 +256,10 @@ export async function crawlSite(options: CrawlOptions): Promise<CrawlResult> {
     }
   }
 
-  return { pages, broken };
+  return { pages, broken, relink };
+  } finally {
+    await browser?.close();
+  }
 }
 
 function resolveFinalUrl(response: AxiosResponse, fallback: string): string {

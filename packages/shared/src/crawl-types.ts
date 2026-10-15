@@ -17,6 +17,15 @@ export interface CrawlOptions {
   articleRules?: ArticlePathRule[];
   /** Optional host allowlist; default = hostname of startUrl only. */
   allowedHosts?: string[];
+  /** Extra seeds. Strings use foundOn `(seed)`; objects can set foundOn (`(sitemap)`). */
+  extraStartUrls?: Array<string | { url: string; foundOn?: string }>;
+  /**
+   * If a harvested href lives on one of these hosts, rewrite it to the
+   * crawl origin before visiting (legacy locale→EN bounce links).
+   */
+  rewriteSourceHosts?: string[];
+  /** Render JS and open menus/accordions before collecting links. */
+  useBrowser?: boolean;
   /** Optional HTML label detection. */
   detection?: DetectionConfig;
   /** Opt-in: flush every N **accessible** pages via onCheckpoint. */
@@ -53,10 +62,23 @@ export interface CrawlBrokenLink {
   statusCode: number;
 }
 
+export interface CrawlRelinkPath {
+  normalizedPath: string;
+  url: string;
+  foundOn: string;
+  /** Locale fetch result: 301 bounce to EN, 404, … */
+  statusCode: number;
+}
+
 export interface CrawlResult {
-  /** Only URLs that returned 2xx (after following redirects). */
+  /** Only URLs that returned 2xx and are not a 404 template. */
   pages: CrawlPage[];
   broken: CrawlBrokenLink[];
+  /**
+   * Locale paths discovered from hrefs that pointed at the EN site.
+   * Not live on this TLD yet — include their i18n keys and relink after translate.
+   */
+  relink?: CrawlRelinkPath[];
 }
 
 export type { ArticlePathRule, DetectionConfig, UrlNormalizeOptions };
